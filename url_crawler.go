@@ -31,9 +31,9 @@ type Response struct {
 * @param {int} num_instances
 */
 func NewUrlCrawler(in chan string, out chan Response,
-	num_instances uint) () {
+	NumInstances uint) () {
 
-	for i:=uint(0); i< num_instances; i++ {
+	for i:=uint(0); i< NumInstances; i++ {
 		log.Infof("Spun up crawler instance #%d", (i+1))
 		go crawl(in, out)
 	}

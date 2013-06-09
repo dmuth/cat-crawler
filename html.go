@@ -1,9 +1,9 @@
 
 package main
 
-
 //import "fmt"
 import "regexp"
+
 
 /**
 * Representation of our parsed Html
@@ -33,6 +33,7 @@ func HtmlParseString(BaseUrl string, Body string) (retval HtmlParsed) {
 	BaseUrlUri := results[2]
 
 	retval.links = HtmlParseLinks(BaseUrlHost, BaseUrlUri, Body)
+	retval.images = HtmlParseImages(BaseUrlHost, BaseUrlUri, Body)
 
 	return(retval)
 
@@ -100,5 +101,64 @@ func HtmlParseLinks(BaseUrlHost string, BaseUrlUri string, Body string) (retval 
 } // End of HtmlParseLinks()
 
 
+/**
+* Grab image links out of the body, and fully qualify them.
+*
+* @param {string} BaseUrlHost The http:// and hostname part of our base URL
+* @param {string} BaseUrlUri Our base URI
+* @param {string} Body The body of the webpage
+*
+* @return {[]string} Array of links
+*/
+func HtmlParseImages(BaseUrlHost string, BaseUrlUri string, Body string) (retval []string) {
+
+	//
+	// Get all of our images
+	//
+	regex, _ := regexp.Compile("(?s)" +
+		"<img[^>]+src=\"" +
+		"("+
+		"(https?://([^/]+))?" +
+		"([^\"]+)" +
+		")\"")
+	results := regex.FindAllStringSubmatch(Body, -1)
+
+	for i:= range results {
+
+		result := results[i]
+
+		HostAndMethod := result[2]
+		Uri := result[4]
+
+		//
+		// If a host and method is specified, just glue them back together.
+		//
+		Url := ""
+		if (HostAndMethod != "") {
+			Url = HostAndMethod + Uri
+
+		} else {
+			//
+			// Otherwise, it's on the same host. Determine if 
+			// it's a relative or absolute link.
+			//
+			FirstChar := string(Uri[0])
+			if (FirstChar == "/") {
+				Url = BaseUrlHost + Uri
+			} else {
+				Url = BaseUrlHost + BaseUrlUri + "/" + Uri
+			}
+
+		}
+
+		//fmt.Println("FINAL IMAGE", Url)
+
+		retval = append(retval, Url)
+
+	}
+
+	return(retval)
+
+} // End of HtmlParseImages()
 
 

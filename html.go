@@ -8,9 +8,15 @@ import "regexp"
 /**
 * Representation of our parsed Html
 */
+type Image struct {
+	html string
+	src string
+	alt string
+	title string
+}
 type HtmlParsed struct {
 	links []string
-	images []string
+	images []Image
 }
 
 
@@ -108,57 +114,121 @@ func HtmlParseLinks(BaseUrlHost string, BaseUrlUri string, Body string) (retval 
 * @param {string} BaseUrlUri Our base URI
 * @param {string} Body The body of the webpage
 *
-* @return {[]string} Array of links
+* @return {[]Image} Array of images
 */
-func HtmlParseImages(BaseUrlHost string, BaseUrlUri string, Body string) (retval []string) {
+func HtmlParseImages(BaseUrlHost string, BaseUrlUri string, Body string) (retval []Image) {
 
-	//
-	// Get all of our images
-	//
+	retval = htmlParseImageTags(Body)
+
+	for i:= range retval {
+		htmlParseSrc(BaseUrlHost, BaseUrlUri, &retval[i])
+		htmlParseAlt(&retval[i])
+		htmlParseTitle(&retval[i])
+	}
+
+	return(retval)
+
+} // End of HtmlParseImages()
+
+
+/**
+* Grab our image tags out of the body.
+*
+* @param {string} Body The HTML body
+*
+* @return {[]Image} Array of Image elements
+*/
+func htmlParseImageTags(Body string) (retval []Image) {
+
+	regex, _ := regexp.Compile("(?s)" +
+		"<img[^>]+>")
+	results := regex.FindAllStringSubmatch(Body, -1)
+
+	for i:= range results {
+		image := Image{ results[i][0], "", "", "" }
+		retval = append(retval, image)
+	}
+
+	return(retval)
+
+} // End of htmlParseImagesTags()
+
+
+/**
+* Parse the src tag out of our image.
+* 
+* @param {string} BaseUrlHost The http:// and hostname part of our base URL
+* @param {string} BaseUrlUri Our base URI
+* @param {*Image} Pointer to our image structure
+*/
+func htmlParseSrc(BaseUrlHost string, BaseUrlUri string, image *Image) {
+
 	regex, _ := regexp.Compile("(?s)" +
 		"<img[^>]+src=\"" +
 		"("+
 		"(https?://([^/]+))?" +
 		"([^\"]+)" +
 		")\"")
-	results := regex.FindAllStringSubmatch(Body, -1)
+	result := regex.FindStringSubmatch(image.html)
 
-	for i:= range results {
+	HostAndMethod := result[2]
+	Uri := result[4]
 
-		result := results[i]
+	//
+	// If a host and method is specified, just glue them back together.
+	//
+	Url := ""
+	if (HostAndMethod != "") {
+		Url = HostAndMethod + Uri
 
-		HostAndMethod := result[2]
-		Uri := result[4]
-
+	} else {
 		//
-		// If a host and method is specified, just glue them back together.
+		// Otherwise, it's on the same host. Determine if 
+		// it's a relative or absolute link.
 		//
-		Url := ""
-		if (HostAndMethod != "") {
-			Url = HostAndMethod + Uri
-
+		FirstChar := string(Uri[0])
+		if (FirstChar == "/") {
+			Url = BaseUrlHost + Uri
 		} else {
-			//
-			// Otherwise, it's on the same host. Determine if 
-			// it's a relative or absolute link.
-			//
-			FirstChar := string(Uri[0])
-			if (FirstChar == "/") {
-				Url = BaseUrlHost + Uri
-			} else {
-				Url = BaseUrlHost + BaseUrlUri + "/" + Uri
-			}
-
+			Url = BaseUrlHost + BaseUrlUri + "/" + Uri
 		}
-
-		//fmt.Println("FINAL IMAGE", Url)
-
-		retval = append(retval, Url)
 
 	}
 
-	return(retval)
+	image.src = Url
 
-} // End of HtmlParseImages()
+} // End of htmlParseSrc()
+
+
+/**
+* Parse the alt tag out of our image.
+*/
+func htmlParseAlt(image *Image) {
+
+	regex, _ := regexp.Compile("(?s)" +
+		"<img[^>]+alt=\"([^\"]+)\"")
+	result := regex.FindStringSubmatch(image.html)
+	if (len(result) > 1) {
+		image.alt = result[1]
+	}
+
+} // End of htmlParseAlt()
+
+
+/**
+* Parse the title tag out of our image.
+*/
+func htmlParseTitle(image *Image) {
+
+	regex, _ := regexp.Compile("(?s)" +
+		"<img[^>]+title=\"([^\"]+)\"")
+	result := regex.FindStringSubmatch(image.html)
+	if (len(result) > 1) {
+		image.title = result[1]
+	}
+
+} // End of htmlParseTitle()
+
+
 
 

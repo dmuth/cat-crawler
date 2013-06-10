@@ -4,8 +4,11 @@ A webcrawler I'm writing in Google Go that I can use to find and download cat pi
 
 ### Current status
 
-**In progress.**  This doesn't yet actually work. :-)  I am writing code and a few unit 
-tests at a time.
+**Partially working** 
+
+I can now max out my cable connection by spidering websites (sorry about that, CNN).
+I'll be working on image downloads and searching next.
+
 
 ### TODO
 

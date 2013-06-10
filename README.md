@@ -9,13 +9,17 @@ tests at a time.
 
 ### TODO
 
-- Write main.go
-  - Command line argument parsing
 - Create image crawler
   - Add search capability to alt and title tags
 - Loop detection in URL crawler
-- Rate limiting in URL crawler
+	- urls[domain][uri]
+- Rate limiting by domain in URL crawler
+	- I could have an array of key=domain, value=count and a goroutine that decrements count regularly
+		- Could get a bit crazy on the memory, though!
 - Write instrumentation to detect how many goroutines are active/idle
+	- GoStatStart(key)
+	- GoStatStop(key)
+	- go GoStatDump(interval)
 
 ### Installation
 

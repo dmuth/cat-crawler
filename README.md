@@ -11,9 +11,10 @@ tests at a time.
 
 - Write main.go
   - Command line argument parsing
-- Loop detection in URL crawler
 - Create image crawler
   - Add search capability to alt and title tags
+- Loop detection in URL crawler
+- Rate limiting in URL crawler
 - Write instrumentation to detect how many goroutines are active/idle
 
 ### Installation

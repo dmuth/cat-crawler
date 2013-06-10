@@ -22,8 +22,13 @@ func Test(t *testing.T) {
 
 	in, out := NewUrlCrawler(10)
 
-	in <- "http://localhost:8080/test2"
+	url := "http://localhost:8080/test2"
+	in <- url
 	result := <-out
+
+	if (result.Url != url) {
+		t.Errorf("URL '%s' does not match '%s'!", result.Url, url)
+	}
 
 	if (result.Code != 200) {
 		t.Errorf("Code %d does not match 200!", result.Code)

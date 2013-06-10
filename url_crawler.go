@@ -13,6 +13,10 @@ import log "github.com/dmuth/google-go-log4go"
 */
 type Response struct {
 	//
+	// The URL we just crawled
+	//
+	Url string
+	//
 	// HTTP code
 	//
 	Code int
@@ -30,8 +34,12 @@ type Response struct {
 */
 func NewUrlCrawler(NumInstances uint) (in chan string, out chan Response) {
 
-	in = make(chan string, NumInstances)
-	out = make(chan Response)
+	BufferSize := 1000
+	InBufferSize := BufferSize
+	//InBufferSize := 1 // Debugging
+	OutBufferSize := BufferSize
+	in = make(chan string, InBufferSize)
+	out = make(chan Response, OutBufferSize)
 
 	for i:=uint(0); i< NumInstances; i++ {
 		log.Infof("Spun up crawler instance #%d", (i+1))
@@ -44,7 +52,7 @@ func NewUrlCrawler(NumInstances uint) (in chan string, out chan Response) {
 
 
 /**
-* This is run as a goroutine which is responsible for doing the carwling and 
+* This is run as a goroutine which is responsible for doing the crawling and 
 * returning the results.
 *
 * @param {chan string} in Our channel to read URLs to crawl from
@@ -54,11 +62,16 @@ func NewUrlCrawler(NumInstances uint) (in chan string, out chan Response) {
 */
 func crawl(in chan string, out chan Response) {
 
-	url := <-in
-	log.Infof("About to crawl '%s'...", url)
+	for {
 
-	out <-httpGet(url)
-	log.Infof("Done crawling '%s'!", url)
+		log.Info("About to ingest a URL...")
+		url := <-in
+		log.Infof("About to crawl '%s'...", url)
+
+		out <-httpGet(url)
+		log.Infof("Done crawling '%s'!", url)
+
+	}
 
 } // End of crawl()
 
@@ -70,6 +83,8 @@ func crawl(in chan string, out chan Response) {
 * @return {Response} A response consisting of our code and body
 */
 func httpGet(url string) (retval Response) {
+
+	retval.Url = url
 
 	client := &http.Client{}
 

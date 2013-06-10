@@ -26,17 +26,19 @@ type Response struct {
 /**
 * Spin up 1 or more goroutines to do crawling.
 *
-* @param {chan string} in Our channel to read URLs to crawl from
-* @param {chan Response} out Responses will be written on this channel
 * @param {int} num_instances
 */
-func NewUrlCrawler(in chan string, out chan Response,
-	NumInstances uint) () {
+func NewUrlCrawler(NumInstances uint) (in chan string, out chan Response) {
+
+	in = make(chan string, NumInstances)
+	out = make(chan Response)
 
 	for i:=uint(0); i< NumInstances; i++ {
 		log.Infof("Spun up crawler instance #%d", (i+1))
 		go crawl(in, out)
 	}
+
+	return in, out
 
 } // End of NewUrlCrawler()
 

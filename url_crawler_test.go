@@ -20,10 +20,7 @@ func Test(t *testing.T) {
 	server_obj := server.NewServer(port, 5, 20, 5, 20, "test_seed")
 	go server_obj.Start()
 
-	in := make(chan string)
-	out := make(chan Response)
-
-	NewUrlCrawler(in, out, 10)
+	in, out := NewUrlCrawler(10)
 
 	in <- "http://localhost:8080/test2"
 	result := <-out

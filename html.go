@@ -21,6 +21,67 @@ type HtmlParsed struct {
 
 
 /**
+* Set up our parser to run in the background.
+*
+* @param {chan string} UrlCrawlerOut URLs written to this will be sent 
+*	off to the URL crawler.
+* @param {chan string} ImageCrawlerOut URLs written to this will be sent 
+*	off to the image crawler.
+*
+* @return {chan string} A channel which will be used to ingest HTML for parsing.
+*/
+func NewHtml(UrlCrawlerOut chan string, ImageCrawlerOut chan Image) (
+	retval chan []string) {
+
+	retval = make(chan []string)
+
+	go HtmlParseWorker(retval, UrlCrawlerOut, ImageCrawlerOut)
+
+	return(retval)
+
+} // End of NewHtml()
+
+
+/**
+* This function is run as a goroutine and ingests Html to parse. It then
+* sends off URLs and image URLs.
+*
+* @param {chan string} HtmlIn Incoming HTML
+* @param {chan string} UrlCrawlerOut URLs written to this will be sent 
+*	off to the URL crawler.
+* @param {chan string} ImageCrawlerOut URLs written to this will be sent 
+*	off to the image crawler.
+*
+*/
+func HtmlParseWorker(HtmlIn chan []string, UrlCrawlerOut chan string, 
+		ImageCrawlerOut chan Image) {
+
+	//
+	// Loop through HTML and parse all the things.
+	//
+	for {
+		in := <-HtmlIn
+		BaseUrl := in[0]
+		Html := in[1]
+		Parsed := HtmlParseString(BaseUrl, Html)
+
+		for i := range Parsed.links {
+			Url := Parsed.links[i]
+			UrlCrawlerOut <- Url
+		}
+
+		for i := range Parsed.images {
+			Image := Parsed.images[i]
+			ImageCrawlerOut <- Image
+		}
+
+	}
+
+} // End of HtmlParseWorker()
+
+
+
+/**
 * Parse an HTML response and get links and images.
 *
 * @param {string} BaseUrl The URL of the page we got these links from
@@ -228,7 +289,5 @@ func htmlParseTitle(image *Image) {
 	}
 
 } // End of htmlParseTitle()
-
-
 
 

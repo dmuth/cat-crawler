@@ -6,6 +6,46 @@ import "testing"
 
 //import log "github.com/dmuth/google-go-log4go"
 
+func TestHtmlNew(t *testing.T) {
+
+	HtmlString := "<a href=\"foobar1\">foobar1 content</a>" +
+		"<a href=\"/foobar2\">foobar2 content</a>" +
+		"<a href=\"http://localhost/foobar3\">foobar3 content</a>" +
+		"<a href=\"https://localhost/foobar4\">foobar4 content</a>\n" +
+		"<a href=\"http://localhost:8080/foobar5\">foobar5 content</a>\n" +
+		"<a href=\"https://localhost:8080/foobar6\">foobar6 content</a>\n" +
+		"<img src=\"foobar1.png\" alt=\"foobar1 alt tag\">" +
+		"<img src=\"/foobar2.png\" alt=\"foobar2 alt tag\" />" +
+		"<img src=\"http://localhost/foobar3.png\" alt=\"foobar3 alt tag\" />" +
+		"<img src=\"https://localhost/foobar4.png\" title=\"foobar4 title\" />" +
+		"<img src=\"http://localhost:8080/foobar5.png\" alt=\"foobar5 alt tag\" />" +
+		"<img src=\"https://localhost:8080/foobar6.png\" alt=\"foobar6 alt tag\" />" +
+		""
+
+	//
+	// Jack the buffer sizes way up.
+	//
+	UrlCrawlerIn := make(chan string, 100)
+	ImageCrawlerOut := make(chan Image, 100)
+
+	HtmlBodyIn := NewHtml(UrlCrawlerIn, ImageCrawlerOut)
+	HtmlBodyIn <- []string { "http://www.cnn.com/", HtmlString }
+
+	ExpectedUrl := "http://www.cnn.com//foobar1"
+	Url := <-UrlCrawlerIn
+
+	if (Url != ExpectedUrl) {
+		t.Errorf("Result '%s' didn't match expected '%s'", Url, ExpectedUrl)
+	}
+
+	ExpectedImageUrl := "http://www.cnn.com//foobar1.png"
+	Image := <-ImageCrawlerOut
+	if (Image.src != ExpectedImageUrl) {
+		t.Errorf("Result '%s' didn't match expected '%s'", Image.src, ExpectedImageUrl)
+	}
+
+} // End of TestHtmlNew()
+
 
 func TestHtmlLinksAndImages(t *testing.T) {
 

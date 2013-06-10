@@ -23,12 +23,11 @@ func TestHtmlNew(t *testing.T) {
 		""
 
 	//
-	// Jack the buffer sizes way up.
+	// Jack the buffer sizes way up so we don't have blocking.
 	//
 	UrlCrawlerIn := make(chan string, 100)
-	ImageCrawlerOut := make(chan Image, 100)
 
-	HtmlBodyIn := NewHtml(UrlCrawlerIn, ImageCrawlerOut)
+	HtmlBodyIn, ImageCrawlerOut := NewHtml(UrlCrawlerIn)
 	HtmlBodyIn <- []string { "http://www.cnn.com/", HtmlString }
 
 	ExpectedUrl := "http://www.cnn.com//foobar1"
@@ -45,6 +44,45 @@ func TestHtmlNew(t *testing.T) {
 	}
 
 } // End of TestHtmlNew()
+
+
+/**
+* Throw in some bad image tags.
+*/
+func TestHtmlBadImg(t *testing.T) {
+
+	HtmlString := "<a href=\"foobar1\">foobar1 content</a>" +
+		"<a href=\"/foobar2\">foobar2 content</a>" +
+		//
+		// Bad tags.
+		//
+		"<a haha nope >foobar2 content</a>" +
+		"<img nope nope nope>" +
+		"<img src=\"foobar1.png\" no alt tag here! >" +
+		""
+
+	//
+	// Jack the buffer sizes way up so we don't have blocking.
+	//
+	UrlCrawlerIn := make(chan string, 100)
+
+	HtmlBodyIn, ImageCrawlerOut := NewHtml(UrlCrawlerIn)
+	HtmlBodyIn <- []string { "http://www.cnn.com/", HtmlString }
+
+	ExpectedUrl := "http://www.cnn.com//foobar1"
+	Url := <-UrlCrawlerIn
+
+	if (Url != ExpectedUrl) {
+		t.Errorf("Result '%s' didn't match expected '%s'", Url, ExpectedUrl)
+	}
+
+	ExpectedImageUrl := ""
+	Image := <-ImageCrawlerOut
+	if (Image.src != ExpectedImageUrl) {
+		t.Errorf("Result '%s' didn't match expected '%s'", Image.src, ExpectedImageUrl)
+	}
+
+} // End of TestHtmlBadImg()
 
 
 func TestHtmlLinksAndImages(t *testing.T) {

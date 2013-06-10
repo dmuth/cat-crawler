@@ -4,6 +4,8 @@ package main
 //import "fmt"
 import "regexp"
 
+import log "github.com/dmuth/google-go-log4go"
+
 
 /**
 * Representation of our parsed Html
@@ -23,21 +25,23 @@ type HtmlParsed struct {
 /**
 * Set up our parser to run in the background.
 *
-* @param {chan string} UrlCrawlerOut URLs written to this will be sent 
+* @param {chan string} UrlCrawlerIn URLs written to this will be sent 
 *	off to the URL crawler.
-* @param {chan string} ImageCrawlerOut URLs written to this will be sent 
-*	off to the image crawler.
 *
 * @return {chan string} A channel which will be used to ingest HTML for parsing.
 */
-func NewHtml(UrlCrawlerOut chan string, ImageCrawlerOut chan Image) (
-	retval chan []string) {
+func NewHtml(UrlCrawlerIn chan string) (
+	chan []string, chan Image) {
 
-	retval = make(chan []string)
+	HtmlCrawlerIn := make(chan []string)
 
-	go HtmlParseWorker(retval, UrlCrawlerOut, ImageCrawlerOut)
+	BufferSize := 1000
+	//BufferSize = 1 // Debugging
+	ImageCrawlerIn := make(chan Image, BufferSize)
 
-	return(retval)
+	go HtmlParseWorker(HtmlCrawlerIn, UrlCrawlerIn, ImageCrawlerIn)
+
+	return HtmlCrawlerIn, ImageCrawlerIn
 
 } // End of NewHtml()
 
@@ -47,14 +51,14 @@ func NewHtml(UrlCrawlerOut chan string, ImageCrawlerOut chan Image) (
 * sends off URLs and image URLs.
 *
 * @param {chan string} HtmlIn Incoming HTML
-* @param {chan string} UrlCrawlerOut URLs written to this will be sent 
+* @param {chan string} UrlCrawlerIn URLs written to this will be sent 
 *	off to the URL crawler.
 * @param {chan string} ImageCrawlerOut URLs written to this will be sent 
 *	off to the image crawler.
 *
 */
-func HtmlParseWorker(HtmlIn chan []string, UrlCrawlerOut chan string, 
-		ImageCrawlerOut chan Image) {
+func HtmlParseWorker(HtmlIn chan []string, UrlCrawlerIn chan string, 
+		ImageCrawlerIn chan Image) {
 
 	//
 	// Loop through HTML and parse all the things.
@@ -65,20 +69,52 @@ func HtmlParseWorker(HtmlIn chan []string, UrlCrawlerOut chan string,
 		Html := in[1]
 		Parsed := HtmlParseString(BaseUrl, Html)
 
-		for i := range Parsed.links {
-			Url := Parsed.links[i]
-			UrlCrawlerOut <- Url
-		}
-
-		for i := range Parsed.images {
-			Image := Parsed.images[i]
-			ImageCrawlerOut <- Image
-		}
+		//
+		// Put these into goroutines so that we can get back to parsing
+		//
+		go HtmlParseWorkerLinks(&Parsed, UrlCrawlerIn)
+		go HtmlParseWorkerImages(&Parsed, ImageCrawlerIn)
 
 	}
 
 } // End of HtmlParseWorker()
 
+
+/**
+* Another goroutine that loops through our links and sends them off to UrlCrawler
+*
+* @param {HtmlParsed} Our parsed HTML elements.
+* @param {chan string} The channel to send URLs to our URL crawler
+*
+*/
+func HtmlParseWorkerLinks(Parsed *HtmlParsed, UrlCrawlerIn chan string) {
+
+		for i := range Parsed.links {
+			Row := Parsed.links[i]
+			log.Debugf("Sending to UrlCrawler: %d: %s", i, Row)
+			UrlCrawlerIn <- Row
+		}
+
+} // End of HtmlParseWorkerLinks()
+
+
+/**
+* Another goroutine that loops through our images and sends them off to 
+* the ImageCrawler.
+*
+* @param {HtmlParsed} Our parsed HTML elements.
+* @param {ImageCrawlerIn} The channel to send images to our image crawler
+*
+*/
+func HtmlParseWorkerImages(Parsed *HtmlParsed, ImageCrawlerIn chan Image) {
+
+		for i := range Parsed.images {
+			Row := Parsed.images[i]
+			log.Debugf("Sending to ImageCrawler: %d: %s", i, Row)
+			ImageCrawlerIn <- Row
+		}
+
+} // End of HtmlParseWorkerImages()
 
 
 /**
@@ -183,8 +219,10 @@ func HtmlParseImages(BaseUrlHost string, BaseUrlUri string, Body string) (retval
 
 	for i:= range retval {
 		htmlParseSrc(BaseUrlHost, BaseUrlUri, &retval[i])
-		htmlParseAlt(&retval[i])
-		htmlParseTitle(&retval[i])
+		if (retval[i].src != "") {
+			htmlParseAlt(&retval[i])
+			htmlParseTitle(&retval[i])
+		}
 	}
 
 	return(retval)
@@ -212,7 +250,7 @@ func htmlParseImageTags(Body string) (retval []Image) {
 
 	return(retval)
 
-} // End of htmlParseImagesTags()
+} // End of htmlParseImageTags()
 
 
 /**
@@ -231,6 +269,13 @@ func htmlParseSrc(BaseUrlHost string, BaseUrlUri string, image *Image) {
 		"([^\"]+)" +
 		")\"")
 	result := regex.FindStringSubmatch(image.html)
+
+	//
+	// Bail out if we have no source
+	//
+	if (len(result) == 0) {
+		return
+	}
 
 	HostAndMethod := result[2]
 	Uri := result[4]

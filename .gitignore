@@ -4,3 +4,8 @@
 #
 cat-crawler
 
+#
+# Vi/vim swapfiles
+#
+*.swp
+

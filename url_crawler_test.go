@@ -73,12 +73,18 @@ func TestFilterUrl(t *testing.T) {
 		"http://www.apple.com/#",
 		"http://www.apple.com/#foobar",
 		"http://www.apple.com/what#foobar",
+		"http://www.apple.com/CSS/ie7.css/../Resources/foobar",
+		"http://www.apple.com/CSS/ie7.css/../Resources/../foobar",
+		"http://www.apple.com/CSS/ie7.css/../Resources/../foobar/baz",
 		}
 	Expected := []string{
 		"http://www.apple.com/",
 		"http://www.apple.com/",
 		"http://www.apple.com/",
 		"http://www.apple.com/what",
+		"http://www.apple.com/CSS/Resources/foobar",
+		"http://www.apple.com/CSS/foobar",
+		"http://www.apple.com/CSS/foobar/baz",
 		}
 
 	for i:= range Urls {

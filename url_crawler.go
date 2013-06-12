@@ -5,6 +5,7 @@ import "fmt"
 import "io/ioutil"
 import "net/http"
 import "regexp"
+import "strings"
 
 import log "github.com/dmuth/google-go-log4go"
 
@@ -112,17 +113,36 @@ func crawl(in chan string, out chan Response) {
 *
 * @return {string} The filtered URL
 */
-func filterUrl(url string) (retval string) {
+func filterUrl(url string) (string) {
 
+	//
+	// First, nuke hashmarks
+	//
 	regex, _ := regexp.Compile("([^#]+)#")
 	results := regex.FindStringSubmatch(url)
 	if (len(results) >= 2) {
-		retval = results[1]
-	} else {
-		retval = url
+		url = results[1]
 	}
 
-	return(retval)
+	//
+	// Now, remove references to parent directories, because that's just 
+	// ASKING for path loops. (thanks, Apple!)
+	//
+	// Do this by looping as long as we have ".." present.
+	//
+	regex, _ = regexp.Compile("([^/]+/\\.\\./)")
+	for  {
+		results = regex.FindStringSubmatch(url)
+		if (len(results) < 2) {
+			break
+		}
+
+		Dir := results[1]
+		url = strings.Replace(url, Dir, "", -1)
+
+	}
+
+	return(url)
 
 } // End of filterUrl()
 

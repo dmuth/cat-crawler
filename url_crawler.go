@@ -141,6 +141,16 @@ func filterUrl(url string) (string) {
 	}
 
 	//
+	// Fix broken methods (thanks, Flickr!)
+	//
+	regex, _ = regexp.Compile("^(http)(s)?(:/)[^/]")
+	results = regex.FindStringSubmatch(url)
+	if (len(results) > 0) {
+		BrokenMethod := results[1] + results[2] + results[3]
+		url = strings.Replace(url, BrokenMethod, BrokenMethod + "/", 1)
+	}
+
+	//
 	// Now, remove references to parent directories, because that's just 
 	// ASKING for path loops. (thanks, Apple!)
 	//
@@ -185,6 +195,13 @@ func beenHere(url string) (retval bool) {
 	//
 	regex, _ := regexp.Compile("(https?://[^/]+)(.*)")
 	results := regex.FindStringSubmatch(url)
+	if (len(results) < 3) {
+		//
+		// TODO: Use data structure and print referrer here!
+		//
+		log.Warnf("beenHere(): Unable to parse URL: '%s'", url)
+		return(true)
+	}
 	Host := results[1]
 	Uri := results[2]
 

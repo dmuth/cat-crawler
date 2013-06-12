@@ -79,6 +79,8 @@ func TestFilterUrl(t *testing.T) {
 		"http://logging.apache.org/log4j/1.2/./css/print.css",
 		"http://logging.apache.org/log4j/1.2///////css/print.css",
 		"http://logging.apache.org/log4j/1.2///..///..///./css/print.css",
+		"http:/www.flickr.com/photos/dmuth/6071648896/",
+		"https:/www.flickr.com/photos/dmuth/6071648896/",
 		}
 	Expected := []string{
 		"http://www.apple.com/",
@@ -91,6 +93,8 @@ func TestFilterUrl(t *testing.T) {
 		"http://logging.apache.org/log4j/1.2/css/print.css",
 		"http://logging.apache.org/log4j/1.2/css/print.css",
 		"http://logging.apache.org/css/print.css",
+		"http://www.flickr.com/photos/dmuth/6071648896/",
+		"https://www.flickr.com/photos/dmuth/6071648896/",
 		}
 
 	for i:= range Urls {

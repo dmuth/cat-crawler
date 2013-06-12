@@ -1,8 +1,11 @@
 
 package main
 
-import log "github.com/dmuth/google-go-log4go"
+import "os"
+import "os/signal"
+import "syscall"
 
+import log "github.com/dmuth/google-go-log4go"
 
 func main() {
 
@@ -13,6 +16,11 @@ func main() {
 	log.Infof(
 		"SeedURL: %s",
 		config.SeedUrl)
+
+	//
+	// Catch our interrupt signal
+	//
+	go sigInt()
 
 	//
 	// Start the crawler and seed it with our very first URL
@@ -47,5 +55,18 @@ log.Infof("%s", ImageCrawlerIn)
 	}
 
 } // End of main()
+
+
+/**
+* Wait for ctrl-c to happen, then exit!
+*/
+func sigInt() {
+        ch := make(chan os.Signal)
+        signal.Notify(ch, syscall.SIGINT)
+        <-ch
+        log.Error("CTRL-C; exiting")
+        os.Exit(0)
+}
+
 
 

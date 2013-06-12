@@ -66,3 +66,30 @@ func Test(t *testing.T) {
 } // End of Test()
 
 
+func TestFilterUrl(t *testing.T) {
+
+	Urls := []string{
+		"http://www.apple.com/",
+		"http://www.apple.com/#",
+		"http://www.apple.com/#foobar",
+		"http://www.apple.com/what#foobar",
+		}
+	Expected := []string{
+		"http://www.apple.com/",
+		"http://www.apple.com/",
+		"http://www.apple.com/",
+		"http://www.apple.com/what",
+		}
+
+	for i:= range Urls {
+		Url := filterUrl(Urls[i])
+		if (Url != Expected[i]) {
+			t.Errorf("Filtered URL '%s' does not match expected URL '%s'!", 
+				Url, Expected[i])
+		}
+	}
+
+} // End of TestFilterUrl()
+
+
+

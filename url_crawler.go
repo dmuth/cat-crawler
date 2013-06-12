@@ -79,6 +79,8 @@ func crawl(in chan string, out chan Response) {
 		log.Debug("About to ingest a URL...")
 		url := <-in
 
+		url = filterUrl(url)
+
 		if (beenHere(url)) {
 			log.Debugf("We've already been to '%s', skipping!", url)
 			continue
@@ -101,6 +103,28 @@ func crawl(in chan string, out chan Response) {
 	}
 
 } // End of crawl()
+
+
+/**
+* Filter meaningless things out of URLs. Like hashmarks.
+*
+* @param {string} url The URL
+*
+* @return {string} The filtered URL
+*/
+func filterUrl(url string) (retval string) {
+
+	regex, _ := regexp.Compile("([^#]+)#")
+	results := regex.FindStringSubmatch(url)
+	if (len(results) >= 2) {
+		retval = results[1]
+	} else {
+		retval = url
+	}
+
+	return(retval)
+
+} // End of filterUrl()
 
 
 /**

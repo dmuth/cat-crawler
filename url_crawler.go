@@ -116,12 +116,28 @@ func crawl(in chan string, out chan Response) {
 func filterUrl(url string) (string) {
 
 	//
-	// First, nuke hashmarks
+	// First, nuke hashmarks (thanks, Apple!)
 	//
 	regex, _ := regexp.Compile("([^#]+)#")
 	results := regex.FindStringSubmatch(url)
 	if (len(results) >= 2) {
 		url = results[1]
+	}
+
+	//
+	// Replace groups of 2 or more slashes with a single slash (thanks, log4j!)
+	//
+	regex, _ = regexp.Compile("[^:](/[/]+)")
+	for {
+		results = regex.FindStringSubmatch(url)
+		if (len(results) < 2) {
+			break
+		}
+
+		Dir := results[1]
+		//url = regex.ReplaceAllString(url, "/")
+		url = strings.Replace(url, Dir, "/", -1)
+
 	}
 
 	//
@@ -141,6 +157,12 @@ func filterUrl(url string) (string) {
 		url = strings.Replace(url, Dir, "", -1)
 
 	}
+
+	//
+	// Replace paths of single dots
+	//
+	regex, _ = regexp.Compile("/\\./")
+	url = regex.ReplaceAllString(url, "/")
 
 	return(url)
 

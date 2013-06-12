@@ -79,28 +79,18 @@ func crawl(in chan string, out chan Response) {
 		log.Debug("About to ingest a URL...")
 		url := <-in
 
-		//
-		// Grab our URL parts
-		//
-		regex, _ := regexp.Compile("(https?://[^/]+)(.*)")
-		results := regex.FindStringSubmatch(url)
-		Host := results[1]
-		Uri := results[2]
-
-		//
-		// Create our host entry if we don't already have it.
-		//
-		if _, ok := hostsCrawled[Host]; !ok {
-			hostsCrawled[Host] = make(map[string]bool)
+		if (beenHere(url)) {
+			log.Debugf("We've already been to '%s', skipping!", url)
+			continue
 		}
 
-		//
-		// If this is our first time here, cool. Otherwise, skip.
-		//
-		if _, ok := hostsCrawled[Host][Uri]; !ok {
-			hostsCrawled[Host][Uri] = true
-		} else {
-			log.Warnf("We've already been to '%s', skipping!", url)
+		if (!sanityCheck(url)) {
+			//
+			// In the future, I might make the in channel take a data 
+			// structure which includes the referrer so I can dig 
+			// into bad URLs. With a backhoe.
+			//
+			log.Warnf("URL '%s' fails sanity check, skipping!", url)
 			continue
 		}
 
@@ -111,6 +101,66 @@ func crawl(in chan string, out chan Response) {
 	}
 
 } // End of crawl()
+
+
+/**
+* Have we already been to this URL?
+*
+* @param {string} url The URL we want to crawl
+*
+* @return {bool} True if we've crawled this URL before, false if we have not.
+*/
+func beenHere(url string) (retval bool) {
+
+	retval = true
+
+	//
+	// Grab our URL parts
+	//
+	regex, _ := regexp.Compile("(https?://[^/]+)(.*)")
+	results := regex.FindStringSubmatch(url)
+	Host := results[1]
+	Uri := results[2]
+
+	//
+	// Create our host entry if we don't already have it.
+	//
+	if _, ok := hostsCrawled[Host]; !ok {
+		hostsCrawled[Host] = make(map[string]bool)
+	}
+
+	//
+	// If this is our first time here, cool. Otherwise, skip.
+	//
+	if _, ok := hostsCrawled[Host][Uri]; !ok {
+		hostsCrawled[Host][Uri] = true
+		retval = false
+	}
+
+	return retval
+
+} // End of beenHere()
+
+
+/**
+* Check to see if this URL is sane.
+*
+* @return {bool} True if the URL looks okay, false otherwise.
+*/
+func sanityCheck(url string) (retval bool) {
+
+	retval = true
+
+	regex, _ := regexp.Compile(" ")
+	result := regex.FindString(url)
+
+	if (result != "") {
+		retval = false
+	}
+
+	return(retval)
+
+} // End of sanityCheck()
 
 
 /**

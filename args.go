@@ -13,6 +13,7 @@ import log "github.com/dmuth/google-go-log4go"
 //
 type Config struct {
 	SeedUrl string
+	NumConnections uint
 }
 
 
@@ -22,11 +23,13 @@ type Config struct {
 */
 func ParseArgs() (retval Config) {
 
-	retval = Config{""}
+	retval = Config{"", 1}
 
-	flag.StringVar(&retval.SeedUrl, "seed_url", 
+	flag.StringVar(&retval.SeedUrl, "seed-url", 
 		"http://www.cnn.com/",
 		"URL to start with.")
+	flag.UintVar(&retval.NumConnections, "num-connections",
+		1, "How many concurrent outbound connections?")
 	h := flag.Bool("h", false, "To get this help")
 	help := flag.Bool("help", false, "To get this help")
 	debug_level := flag.String("debug-level", "info", "Set the debug level")

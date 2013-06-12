@@ -17,8 +17,7 @@ func main() {
 	//
 	// Start the crawler and seed it with our very first URL
 	//
-	NumConnections := 1000
-	NumConnections = 1 // Debugging
+	NumConnections := config.NumConnections
 	UrlCrawlerIn, UrlCrawlerOut := NewUrlCrawler(uint(NumConnections))
 	UrlCrawlerIn <- config.SeedUrl
 	//UrlCrawlerIn <- "http://localhost:8080/" // Debugging

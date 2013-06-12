@@ -28,6 +28,11 @@ I'll be working on image downloads and searching next.
 
     git clone git@github.com:dmuth/cat-crawler.git
     
+### Running the crawler
+	go run ./*.go --seed-url url [ --num-connections n ]
+		--seed-url What URL to start at?
+		--num-connections How many concurrent connections?
+
 ### Running the tests
 
     go get -v -a github.com/dmuth/procedural-webserver

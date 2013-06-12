@@ -14,8 +14,6 @@ I'll be working on image downloads and searching next.
 
 - Create image crawler
   - Add search capability to alt and title tags
-- Loop detection in URL crawler
-	- urls[domain][uri]
 - Rate limiting by domain in URL crawler
 	- I could have an array of key=domain, value=count and a goroutine that decrements count regularly
 		- Could get a bit crazy on the memory, though!

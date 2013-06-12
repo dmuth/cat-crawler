@@ -4,6 +4,7 @@ package main
 import "fmt"
 import "io/ioutil"
 import "net/http"
+import "regexp"
 
 import log "github.com/dmuth/google-go-log4go"
 
@@ -26,18 +27,29 @@ type Response struct {
 	Body string
 }
 
+//
+// Keep track of if we crawled hosts with specific URLs
+//
+var hostsCrawled map [string]map[string]bool
+
 
 /**
 * Spin up 1 or more goroutines to do crawling.
 *
 * @param {int} num_instances
+* @returm {chan string, chan Response} Our channel to read URLs from, 
+*	our channel to write responses to.
 */
 func NewUrlCrawler(NumInstances uint) (in chan string, out chan Response) {
 
-	BufferSize := 1000
-	InBufferSize := BufferSize
-	//InBufferSize := 1 // Debugging
-	OutBufferSize := BufferSize
+	hostsCrawled = make(map[string]map[string]bool)
+
+	//
+	// I haven't yet decided if I want a buffer for 
+	//InBufferSize := 1000
+	InBufferSize := 0
+	//OutBufferSize := 1000
+	OutBufferSize := 0
 	in = make(chan string, InBufferSize)
 	out = make(chan Response, OutBufferSize)
 
@@ -64,10 +76,35 @@ func crawl(in chan string, out chan Response) {
 
 	for {
 
-		log.Info("About to ingest a URL...")
+		log.Debug("About to ingest a URL...")
 		url := <-in
-		log.Infof("About to crawl '%s'...", url)
 
+		//
+		// Grab our URL parts
+		//
+		regex, _ := regexp.Compile("(https?://[^/]+)(.*)")
+		results := regex.FindStringSubmatch(url)
+		Host := results[1]
+		Uri := results[2]
+
+		//
+		// Create our host entry if we don't already have it.
+		//
+		if _, ok := hostsCrawled[Host]; !ok {
+			hostsCrawled[Host] = make(map[string]bool)
+		}
+
+		//
+		// If this is our first time here, cool. Otherwise, skip.
+		//
+		if _, ok := hostsCrawled[Host][Uri]; !ok {
+			hostsCrawled[Host][Uri] = true
+		} else {
+			log.Warnf("We've already been to '%s', skipping!", url)
+			continue
+		}
+
+		log.Infof("About to crawl '%s'...", url)
 		out <-httpGet(url)
 		log.Infof("Done crawling '%s'!", url)
 

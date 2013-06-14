@@ -33,6 +33,10 @@ type Response struct {
 //
 var hostsCrawled map [string]map[string]bool
 
+//
+// Our allowed URLs to crawl. If empty, all URLs are crawled.
+//
+var allowedUrls []string
 
 /**
 * Spin up 1 or more goroutines to do crawling.
@@ -41,9 +45,10 @@ var hostsCrawled map [string]map[string]bool
 * @returm {chan string, chan Response} Our channel to read URLs from, 
 *	our channel to write responses to.
 */
-func NewUrlCrawler(NumInstances uint) (in chan string, out chan Response) {
+func NewUrlCrawler(NumInstances uint, AllowedUrls []string) (in chan string, out chan Response) {
 
 	hostsCrawled = make(map[string]map[string]bool)
+	allowedUrls = AllowedUrls
 
 	//
 	// I haven't yet decided if I want a buffer for this
@@ -84,6 +89,11 @@ func crawl(in chan string, out chan Response) {
 
 		log.Debug("About to ingest a URL...")
 		url := <-in
+
+		if (!isUrlAllowed(url)) {
+			log.Debugf("URL '%s' is not allowed!", url)
+			continue
+		}
 
 		url = filterUrl(url)
 
@@ -297,5 +307,38 @@ func httpGet(url string) (retval Response) {
 	return(retval)
 
 } // End of httpGet()
+
+
+/**
+* Is this URL on our allowed list?
+*
+* @param {string} The URL to check
+*
+* @return {bool} If allowed, true. Otherwise, false.
+*/
+func isUrlAllowed(url string)  (retval bool) {
+
+	if (len(allowedUrls) == 0) {
+		return true
+	}
+
+	//
+	// Loop through our URLs and return true on the first match
+	//
+	for _, value := range allowedUrls {
+		pattern := "^" + value
+		match, _ := regexp.MatchString(pattern, url)
+		if (match) {
+			return true
+		}
+	}
+
+	//
+	// If we got here, no match was found. Return false.
+	//
+	return false
+
+} // End of isUrlAllowed()
+
 
 

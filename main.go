@@ -13,10 +13,11 @@ func main() {
 	// Parse our arguments and report them
 	//
 	config := ParseArgs()
-	log.Infof(
-		"SeedURLs: %s",
-		config.SeedUrls,
-		)
+	log.Infof("Config: %s", config)
+	log.Infof("SeedURLs: %s", config.SeedUrls)
+	if (len(config.AllowUrls) > 0 ) {
+		log.Infof("Only allowing URLs starting with: %s", config.AllowUrls)
+	}
 
 	//
 	// Catch our interrupt signal
@@ -27,7 +28,7 @@ func main() {
 	// Start the crawler and seed it with our very first URL
 	//
 	NumConnections := config.NumConnections
-	UrlCrawlerIn, UrlCrawlerOut := NewUrlCrawler(uint(NumConnections))
+	UrlCrawlerIn, UrlCrawlerOut := NewUrlCrawler(uint(NumConnections), config.AllowUrls)
 
 	//UrlCrawlerIn <- "http://localhost:8080/" // Debugging
 	for _, value := range config.SeedUrls {

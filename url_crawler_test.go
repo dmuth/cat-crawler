@@ -20,7 +20,7 @@ func Test(t *testing.T) {
 	server_obj := server.NewServer(port, 5, 20, 5, 20, "test_seed")
 	go server_obj.Start()
 
-	in, out := NewUrlCrawler(10)
+	in, out := NewUrlCrawler(10, []string{})
 
 	url := "http://localhost:8080/test2"
 	in <- url
@@ -106,6 +106,53 @@ func TestFilterUrl(t *testing.T) {
 	}
 
 } // End of TestFilterUrl()
+
+
+func TestIsUrlAllowed(t *testing.T) {
+
+	_, _ = NewUrlCrawler(10, []string { 
+		"http://foo/",
+		"https://bar/baz",
+		})
+	Urls := []string {
+		"http://google.com/",
+		"http://foo",
+		"http://foo/",
+		"http://foo/bar",
+		"http://bar",
+		"http://bar/baz",
+		"https://bar/baz",
+		"https://bar/baz/",
+		}
+	Expected := []bool {
+		false,
+		false,
+		true,
+		true,
+		false,
+		false,
+		true,
+		true,
+		}
+
+	for key, value := range Urls {
+		result := isUrlAllowed(value)
+		if (result != Expected[key]) {
+			t.Errorf("For URL '%s', expected %s and got %s",
+				value, Expected[key], result)
+		}
+	}
+
+	_, _ = NewUrlCrawler(10, []string {})
+	for key, value := range Urls {
+		result := isUrlAllowed(value)
+		if (result != true) {
+			t.Errorf("For URL '%s', expected %s and got %s",
+				value, Expected[key], result)
+		}
+	}
+
+} // End of TestIsUrlAllowed()
 
 
 

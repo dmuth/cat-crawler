@@ -23,15 +23,32 @@ I'll be working on image downloads and searching next.
 	- GoStatStop(key)
 	- go GoStatDump(interval)
 
+
 ### Installation
 
     git clone git@github.com:dmuth/cat-crawler.git
+
     
 ### Running the crawler
-	go run ./*.go --seed-url url[,url[,url[...]]] [ --num-connections n ]
+	go run ./*.go [--seed-url url[,url[,url[...]]]] [ --num-connections n ] [--allow-urls [url,[url,[...]]]]
 		--seed-url What URL to start at? More than one URL may be 
 			specified in comma-delimited format.
 		--num-connections How many concurrent connections?
+		--allow-urls If specified, only URLs starting with the URLs listed here are crawled
+
+
+### Examples
+	go run ./*.go --seed-url cnn.com --num-connections 1
+	- Get top stories. :-)
+
+	go run ./*.go --seed-url (any URL) --num-connections 1000
+	- This will saturate your download bandwidth. Seriously, don't do it.
+
+	go run ./*.go --seed-url cnn.com  --num-connections 1 --allow-urls cnn.com
+	- Don't leave CNN's website
+
+	go run ./*.go --seed-url cnn.com  --num-connections 1 --allow-urls foobar
+	- After crawling the first page, nothing will happen.  Oops.
 
 ### Running the tests
 
@@ -43,6 +60,7 @@ You should see results like this:
 
     PASS
     ok      _/Users/doug/development/google-go/cat-crawler  0.024s
+
 
 ### Contact
 

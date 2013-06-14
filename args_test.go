@@ -11,7 +11,7 @@ func TestSplitHostnames(t *testing.T) {
 
 	//log.SetLevelString("info")
 
-	Input := "test,test2,http://test3,https://test4/,test5:8080/,test6:8080/foobar"
+	Input := "test,test2,http://test3,https://test4/,test5:8080/,test6:8080/foobar,"
 	Output := SplitHostnames(Input)
 	Expected := []string {
 		"http://test",
@@ -20,6 +20,7 @@ func TestSplitHostnames(t *testing.T) {
 		"https://test4/",
 		"http://test5:8080/",
 		"http://test6:8080/foobar",
+		"",
 	}
 
 	for key, value := range Output {

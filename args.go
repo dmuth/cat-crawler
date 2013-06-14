@@ -3,6 +3,8 @@ package main
 
 import "flag"
 //import "fmt"
+import "regexp"
+import "strings"
 import "os"
 
 import log "github.com/dmuth/google-go-log4go"
@@ -12,7 +14,7 @@ import log "github.com/dmuth/google-go-log4go"
 // Configuration for what was passed in on the command line.
 //
 type Config struct {
-	SeedUrl string
+	SeedUrls []string
 	NumConnections uint
 }
 
@@ -23,9 +25,9 @@ type Config struct {
 */
 func ParseArgs() (retval Config) {
 
-	retval = Config{"", 1}
+	retval = Config{[]string{}, 1}
 
-	flag.StringVar(&retval.SeedUrl, "seed-url", 
+	hostnames := flag.String("seed-url",
 		"http://www.cnn.com/",
 		"URL to start with.")
 	flag.UintVar(&retval.NumConnections, "num-connections",
@@ -44,9 +46,39 @@ func ParseArgs() (retval Config) {
 		os.Exit(1)
 	}
 
+	retval.SeedUrls = SplitHostnames(*hostnames)
 
 	return(retval)
 
 } // End of ParseArgs()
+
+
+/**
+* Take a comma-delimited string of hostnames and turn it into an array of URLs.
+*
+* @param {string} Input The comma-delimited string
+*
+* @return {[]string} Array of URLs
+*/
+func SplitHostnames(Input string) (retval []string) {
+
+	Results := strings.Split(Input, ",")
+
+	for _, value := range Results {
+
+		pattern := "^http(s)?://"
+		match, _ := regexp.MatchString(pattern, value)
+		if (!match) {
+			value = "http://" + value
+		}
+
+		retval = append(retval, value)
+
+	}
+
+	return(retval)
+
+} // End of SplitHostnames()
+
 
 

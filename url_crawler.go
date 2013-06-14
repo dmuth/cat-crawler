@@ -46,11 +46,16 @@ func NewUrlCrawler(NumInstances uint) (in chan string, out chan Response) {
 	hostsCrawled = make(map[string]map[string]bool)
 
 	//
-	// I haven't yet decided if I want a buffer for 
+	// I haven't yet decided if I want a buffer for this
+	//
 	//InBufferSize := 1000
 	InBufferSize := 0
-	//OutBufferSize := 1000
-	OutBufferSize := 0
+
+	//
+	// If we don't have a large output buffer, using multiple seed URLs 
+	// will cause blocking to happen (ooops!)
+	//
+	OutBufferSize := 1000
 	in = make(chan string, InBufferSize)
 	out = make(chan Response, OutBufferSize)
 

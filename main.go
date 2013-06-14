@@ -14,8 +14,9 @@ func main() {
 	//
 	config := ParseArgs()
 	log.Infof(
-		"SeedURL: %s",
-		config.SeedUrl)
+		"SeedURLs: %s",
+		config.SeedUrls,
+		)
 
 	//
 	// Catch our interrupt signal
@@ -27,8 +28,11 @@ func main() {
 	//
 	NumConnections := config.NumConnections
 	UrlCrawlerIn, UrlCrawlerOut := NewUrlCrawler(uint(NumConnections))
-	UrlCrawlerIn <- config.SeedUrl
+
 	//UrlCrawlerIn <- "http://localhost:8080/" // Debugging
+	for _, value := range config.SeedUrls {
+		UrlCrawlerIn <- value
+	}
 
 	//
 	// Create our HTML parser

@@ -27,8 +27,9 @@ I'll be working on image downloads and searching next.
     git clone git@github.com:dmuth/cat-crawler.git
     
 ### Running the crawler
-	go run ./*.go --seed-url url [ --num-connections n ]
-		--seed-url What URL to start at?
+	go run ./*.go --seed-url url[,url[,url[...]]] [ --num-connections n ]
+		--seed-url What URL to start at? More than one URL may be 
+			specified in comma-delimited format.
 		--num-connections How many concurrent connections?
 
 ### Running the tests

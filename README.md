@@ -2,6 +2,7 @@
 
 A webcrawler I'm writing in Google Go that I can use to find and download cat pictures.
 
+
 ### Current status
 
 **Partially working** 
@@ -50,6 +51,7 @@ Don't leave CNN's website
     go run ./*.go --seed-url cnn.com  --num-connections 1 --allow-urls foobar
 After crawling the first page, nothing will happen.  Oops.
 
+
 ### Running the tests
 
     go get -v -a github.com/dmuth/procedural-webserver
@@ -65,7 +67,6 @@ You should see results like this:
 ### Contact
 
 Questions? Complaints? Here's my contact info: http://www.dmuth.org/contact
-
 
 
 

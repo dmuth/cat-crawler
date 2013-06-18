@@ -14,3 +14,8 @@ cat-crawler
 #
 output.txt
 
+#
+# Ignore our default downloads directory
+#
+downloads
+

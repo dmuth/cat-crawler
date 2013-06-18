@@ -1,6 +1,9 @@
 
 package main
 
+//import "fmt"
+import "regexp"
+
 import log "github.com/dmuth/google-go-log4go"
 
 
@@ -42,5 +45,28 @@ func crawlImages(in chan Image) {
 	}
 
 } // End of crawlImages()
+
+
+/**
+* Convert our URL into a filename
+*/
+func getFilenameFromUrl(Url string) (retval string) {
+
+	retval = Url
+
+	results := getUrlParts(Url)
+	Host := results[3]
+	Uri := results[4]
+
+	regex, _ := regexp.Compile("/$")
+	Uri = regex.ReplaceAllLiteralString(Uri, "")
+
+	retval = Host + Uri
+	//regex, _ := regexp.Compile("(https?://[^/]+)(.*)")
+	//results := regex.FindStringSubmatch(url)
+
+	return(retval)
+
+} // End of getFilenameFromUrl()
 
 

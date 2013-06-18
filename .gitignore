@@ -9,3 +9,8 @@ cat-crawler
 #
 *.swp
 
+#
+# My test output
+#
+output.txt
+

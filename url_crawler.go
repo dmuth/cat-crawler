@@ -1,32 +1,11 @@
 
 package main
 
-import "fmt"
-import "io/ioutil"
-import "net/http"
 import "regexp"
 import "strings"
 
 import log "github.com/dmuth/google-go-log4go"
 
-
-/**
-* Our response object.
-*/
-type Response struct {
-	//
-	// The URL we just crawled
-	//
-	Url string
-	//
-	// HTTP code
-	//
-	Code int
-	//
-	// The actual page content.
-	//
-	Body string
-}
 
 //
 // Keep track of if we crawled hosts with specific URLs
@@ -37,6 +16,7 @@ var hostsCrawled map [string]map[string]bool
 // Our allowed URLs to crawl. If empty, all URLs are crawled.
 //
 var allowedUrls []string
+
 
 /**
 * Spin up 1 or more goroutines to do crawling.
@@ -66,7 +46,7 @@ func NewUrlCrawler(NumInstances uint, AllowedUrls []string) (in chan string, out
 
 	for i:=uint(0); i< NumInstances; i++ {
 		log.Infof("Spun up crawler instance #%d", (i+1))
-		go crawl(in, out)
+		go crawlUrls(in, out)
 	}
 
 	return in, out
@@ -83,7 +63,7 @@ func NewUrlCrawler(NumInstances uint, AllowedUrls []string) (in chan string, out
 *
 * @return {Response} A response consisting of our code and body
 */
-func crawl(in chan string, out chan Response) {
+func crawlUrls(in chan string, out chan Response) {
 
 	for {
 
@@ -259,54 +239,6 @@ func sanityCheck(url string) (retval bool) {
 	return(retval)
 
 } // End of sanityCheck()
-
-
-/**
-* Retrieve a URL via HTTP GET.
-*
-* @param {string} url The URL to retrieve.
-* @return {Response} A response consisting of our code and body
-*/
-func httpGet(url string) (retval Response) {
-
-	retval.Url = url
-
-	client := &http.Client{}
-
-	req, err := http.NewRequest("GET", url, nil)
-	if err != nil {
-		log.Warnf("Error fetching %s: %s", url, err)
-		retval.Body = fmt.Sprintf("%s", err)
-		retval.Code = 0
-		return(retval)
-	}
-
-	req.Header.Set("User-Agent", 
-		"Dmuth's crawler. Please report bugs to me: http://www.dmuth.org/contact")
-
-	resp, err := client.Do(req)
-	if err != nil {
-		log.Warnf("Error fetching %s: %s", url, err)
-		retval.Body = fmt.Sprintf("%s", err)
-		retval.Code = 0
-		return(retval)
-	}
-
-	defer resp.Body.Close()
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Warnf("Error fetching %s: %s", url, err)
-		retval.Body = fmt.Sprintf("%s", err)
-		retval.Code = 0
-		return(retval)
-	}
-
-	retval.Body = fmt.Sprintf("%s", body)
-	retval.Code = resp.StatusCode
-
-	return(retval)
-
-} // End of httpGet()
 
 
 /**

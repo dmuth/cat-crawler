@@ -146,23 +146,45 @@ func writeImage(Filename string, Body string) {
 
 	cwd, _ := os.Getwd()
 
+	//
+	// Create our target and nuke the filename from the end
+	//
 	target := cwd + "/downloads/" + Filename
+	regex, _ := regexp.Compile("/[^/]+$")
+	dir := regex.ReplaceAllLiteralString(target, "")
 
 	//
 	// Try making our directory
 	// We want to panic if there are any issues since it could 
 	// mean awful things like a full disk!
 	//
-	result := os.MkdirAll(target, 0750)
+	result := os.MkdirAll(dir, 0750)
 	if (result != nil) {
-		log.Errorf("%s", result)
+		log.Errorf("Error creating directory: %s", result)
 		panic(result)
 	}
 
 	//
-	// 
+	// Now write the file.
 	//
-// TEST
+	file, err := os.Create(target)
+	if (err != nil) {
+		log.Warnf("Error opening file: %s", err)
+
+	} else {
+		n, err := file.Write([]byte(Body))
+		if (err != nil) {
+			log.Warnf("Error writing file: '%s': %s", target, err)
+		}
+		log.Infof("%d bytes written to file '%s'", n, target)
+
+		err = file.Close()
+		if (err != nil) {
+			log.Errorf("Error closing file: %s", err)
+			panic(err)
+		}
+
+	}
 
 } // End of writeImage()
 

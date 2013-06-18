@@ -48,7 +48,7 @@ func httpGet(url string) (retval Response) {
 	}
 
 	req.Header.Set("User-Agent", 
-		"Dmuth's crawler. Please report bugs to me: http://www.dmuth.org/contact")
+		"Doug's cat picture crawler. https://github.com/dmuth/cat-crawler")
 
 	resp, err := client.Do(req)
 	if err != nil {

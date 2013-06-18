@@ -24,10 +24,11 @@ func main() {
 	//
 	go sigInt()
 
+	NumConnections := config.NumConnections
+
 	//
 	// Start the crawler and seed it with our very first URL
 	//
-	NumConnections := config.NumConnections
 	UrlCrawlerIn, UrlCrawlerOut := NewUrlCrawler(uint(NumConnections), config.AllowUrls)
 
 	//UrlCrawlerIn <- "http://localhost:8080/" // Debugging
@@ -39,11 +40,11 @@ func main() {
 	// Create our HTML parser
 	//
 	HtmlBodyIn, ImageCrawlerIn := NewHtml(UrlCrawlerIn)
-log.Infof("%s", ImageCrawlerIn)
 
 	//
-	// TODO: Start the image crawler here
-	// NewImageCrawler(ImageCrawlerIn)
+	// Start up our image crawler
+	//
+	NewImageCrawler(ImageCrawlerIn, NumConnections)
 
 	for {
 		//

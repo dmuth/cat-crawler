@@ -77,7 +77,7 @@ func crawlUrls(in chan string, out chan Response) {
 
 		url = filterUrl(url)
 
-		if (beenHere(url)) {
+		if (urlBeenHere(url)) {
 			log.Debugf("We've already been to '%s', skipping!", url)
 			continue
 		}
@@ -181,24 +181,23 @@ func filterUrl(url string) (string) {
 *
 * @return {bool} True if we've crawled this URL before, false if we have not.
 */
-func beenHere(url string) (retval bool) {
+func urlBeenHere(url string) (retval bool) {
 
 	retval = true
 
 	//
 	// Grab our URL parts
 	//
-	regex, _ := regexp.Compile("(https?://[^/]+)(.*)")
-	results := regex.FindStringSubmatch(url)
-	if (len(results) < 3) {
+	results := getUrlParts(url)
+	if (len(results) < 5) {
 		//
 		// TODO: Use data structure and print referrer here!
 		//
-		log.Warnf("beenHere(): Unable to parse URL: '%s'", url)
+		log.Warnf("urlBeenHere(): Unable to parse URL: '%s'", url)
 		return(true)
 	}
 	Host := results[1]
-	Uri := results[2]
+	Uri := results[4]
 
 	//
 	// Create our host entry if we don't already have it.
@@ -217,7 +216,20 @@ func beenHere(url string) (retval bool) {
 
 	return retval
 
-} // End of beenHere()
+} // End of urlBeenHere()
+
+
+/**
+* Split up our URL into its component parts
+*/
+func getUrlParts(url string) (retval []string) {
+
+	regex, _ := regexp.Compile("((https?://)([^/]+))(.*)")
+	retval = regex.FindStringSubmatch(url)
+
+	return(retval)
+
+} // End of getUrlParts()
 
 
 /**

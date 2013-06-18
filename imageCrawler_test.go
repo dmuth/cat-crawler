@@ -19,6 +19,13 @@ func TestGetFilenameFromUrl(t *testing.T) {
 		"http://www.flickr.com/photos/dmuth/6071648896",
 		"http://www.flickr.com/photos/dmuth/6071648896/",
 		"https://www.flickr.com/photos/dmuth/6071648896/",
+		"https://www.flickr.com/photos/dmuth/6071648896/" +
+			"1234567890" +
+			"1234567890" +
+			"1234567890" +
+			"1234567890" +
+			"1234567890" +
+			"1234567890",
 		}
 
 	Expected := []string{
@@ -31,6 +38,7 @@ func TestGetFilenameFromUrl(t *testing.T) {
 		"www.flickr.com/photos/dmuth/6071648896",
 		"www.flickr.com/photos/dmuth/6071648896",
 		"www.flickr.com/photos/dmuth/6071648896",
+		"www.flickr.com/photos/dmuth/6071648896/1234567890123456789012345678901234567890",
 		}
 
 	for key, value := range Urls {

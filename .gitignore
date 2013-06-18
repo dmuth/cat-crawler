@@ -19,3 +19,8 @@ output.txt
 #
 downloads
 
+#
+# Et tu, OS/X?
+#
+.DS_Store
+

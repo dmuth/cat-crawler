@@ -52,6 +52,12 @@ func main() {
 		//
 		Res := <-UrlCrawlerOut
 
+		if (Res.Code != 200) {
+			log.Debugf("Skipping non-2xx response of %d on URL '%s'", 
+				Res.Code, Res.Url)
+			continue
+		}
+
 		//
 		// Pass it into the HTML parser.  It will in turn send any URLs
 		// it finds into the URL Crawler and any images to the Image Crawler.

@@ -17,6 +17,10 @@ type Response struct {
 	//
 	Url string
 	//
+	// Our content-type
+	//
+	ContentType string
+	//
 	// HTTP code
 	//
 	Code int
@@ -65,6 +69,11 @@ func httpGet(url string) (retval Response) {
 		retval.Body = fmt.Sprintf("%s", err)
 		retval.Code = 0
 		return(retval)
+	}
+
+	if _, ok := resp.Header["Content-Type"]; ok {
+
+		retval.ContentType = resp.Header["Content-Type"][0]
 	}
 
 	retval.Body = fmt.Sprintf("%s", body)

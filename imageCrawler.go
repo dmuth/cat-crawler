@@ -54,6 +54,17 @@ func crawlImages(in chan Image) {
 		response := httpGet(Url)
 		log.Infof("Response code %d on URL '%s'", response.Code, response.Url)
 
+		//
+		// If the content-type isn't an image, stop.
+		//
+		regex, _ := regexp.Compile("^image")
+		results := regex.FindString(response.ContentType)
+		if (len(results) == 0) {
+			log.Errorf("Skipping Content-Type of '%s', on URL '%s'",
+				response.ContentType, response.Url)
+			continue
+		}
+
 		filename := getFilenameFromUrl(Url)
 
 		writeImage(filename, response.Body)

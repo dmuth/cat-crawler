@@ -5,7 +5,9 @@ import "os"
 import "os/signal"
 import "syscall"
 
+
 import log "github.com/dmuth/google-go-log4go"
+
 
 func main() {
 
@@ -62,7 +64,7 @@ func main() {
 		// Pass it into the HTML parser.  It will in turn send any URLs
 		// it finds into the URL Crawler and any images to the Image Crawler.
 		//
-		HtmlBodyIn <- []string { Res.Url, Res.Body }
+		HtmlBodyIn <- []string { Res.Url, Res.Body, Res.ContentType }
 
 	}
 

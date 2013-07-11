@@ -3,6 +3,7 @@
 # Ignore the binary
 #
 cat-crawler
+main
 
 #
 # Vi/vim swapfiles

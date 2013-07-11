@@ -39,16 +39,16 @@ I'll work on alt and title tag searching next.
 
 
 ### Examples
-    go build && ./cat-crawler --seed-url cnn.com --num-connections 1
+    go build -o main && ./main --seed-url cnn.com --num-connections 1
 Get top stories. :-)
 
-    go build && ./cat-crawler --seed-url (any URL) --num-connections 1000
+    go build -o main && ./main --seed-url (any URL) --num-connections 1000
 This will saturate your download bandwidth. Seriously, don't do it.
 
-    go build && ./cat-crawler --seed-url cnn.com  --num-connections 1 --allow-urls cnn.com
+    go build -o main && ./main --seed-url cnn.com  --num-connections 1 --allow-urls cnn.com
 Don't leave CNN's website
 
-    go build && ./cat-crawler --seed-url cnn.com  --num-connections 1 --allow-urls foobar
+    go build -o main && ./main --seed-url cnn.com  --num-connections 1 --allow-urls foobar
 After crawling the first page, nothing will happen.  Oops.
 
 

@@ -27,11 +27,15 @@ I'll work on alt and title tag searching next.
 
 ### Installation
 
-    git clone git@github.com:dmuth/cat-crawler.git
+- Make sure your golib is set up properly:
+   `export GOLIB=$HOME/golib`
+- Make sure the bin directory is in your path:
+   `PATH=$PATH:$GOLIB/bin`
+- Now install the package
+   `go get -v github.com/dmuth/cat-crawler`
 
-    
 ### Running the crawler
-	go run ./*.go [--seed-url url[,url[,url[...]]]] [ --num-connections n ] [--allow-urls [url,[url,[...]]]]
+	cat-crawler [--seed-url url[,url[,url[...]]]] [ --num-connections n ] [--allow-urls [url,[url,[...]]]]
 		--seed-url What URL to start at? More than one URL may be 
 			specified in comma-delimited format.
 		--num-connections How many concurrent connections?
@@ -39,23 +43,23 @@ I'll work on alt and title tag searching next.
 
 
 ### Examples
-    go build -o main && ./main --seed-url cnn.com --num-connections 1
+    cat-crawler --seed-url cnn.com --num-connections 1
 Get top stories. :-)
 
-    go build -o main && ./main --seed-url (any URL) --num-connections 1000
+    cat-crawler --seed-url (any URL) --num-connections 1000
 This will saturate your download bandwidth. Seriously, don't do it.
 
-    go build -o main && ./main --seed-url cnn.com  --num-connections 1 --allow-urls cnn.com
+    cat-crawler --seed-url cnn.com  --num-connections 1 --allow-urls cnn.com
 Don't leave CNN's website
 
-    go build -o main && ./main --seed-url cnn.com  --num-connections 1 --allow-urls foobar
+    cat-crawler --seed-url cnn.com  --num-connections 1 --allow-urls foobar
 After crawling the first page, nothing will happen.  Oops.
 
 
 ### Running the tests
 
     go get -v -a github.com/dmuth/procedural-webserver
-    go test -i
+    cd $GOLIB/src/github.com/dmuth/cat-crawler
     go test
 
 You should see results like this:

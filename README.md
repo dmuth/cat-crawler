@@ -35,12 +35,11 @@ I'll work on alt and title tag searching next.
    `go get -v github.com/dmuth/cat-crawler`
 
 ### Running the crawler
-	cat-crawler [--seed-url url[,url[,url[...]]]] [ --num-connections n ] [--allow-urls [url,[url,[...]]]]
-		--seed-url What URL to start at? More than one URL may be 
-			specified in comma-delimited format.
-		--num-connections How many concurrent connections?
-		--allow-urls If specified, only URLs starting with the URLs listed here are crawled
-
+    cat-crawler [--seed-url url[,url[,url[...]]]] [ --num-connections n ] [--allow-urls [url,[url,[...]]]]
+        --seed-url What URL to start at? More than one URL may be 
+            specified in comma-delimited format.
+        --num-connections How many concurrent connections?
+        --allow-urls If specified, only URLs starting with the URLs listed here are crawled
 
 ### Examples
     cat-crawler --seed-url cnn.com --num-connections 1
@@ -54,6 +53,11 @@ Don't leave CNN's website
 
     cat-crawler --seed-url cnn.com  --num-connections 1 --allow-urls foobar
 After crawling the first page, nothing will happen.  Oops.
+
+
+### Development
+
+    go get -v github.com/dmuth/cat-crawler && cat-crawler [options]
 
 
 ### Running the tests

@@ -153,7 +153,7 @@ func writeImage(Filename string, Body string) {
 	//
 	// Create our target and nuke the filename from the end
 	//
-	target := cwd + "/downloads/" + Filename
+	target := cwd + "/cat-crawler-downloads/" + Filename
 	regex, _ := regexp.Compile("/[^/]+$")
 	dir := regex.ReplaceAllLiteralString(target, "")
 

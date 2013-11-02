@@ -62,15 +62,37 @@ After crawling the first page, nothing will happen.  Oops.
 
 ### Running the tests
 
-    go get -v -a github.com/dmuth/procedural-webserver
-    cd $GOLIB/src/github.com/dmuth/cat-crawler
-    go test
+    go get -v -a github.com/dmuth/procedural-webserver # Dependency
+    go test -v github.com/dmuth/cat-crawler
 
 You should see results like this:
 
+    === RUN TestSplitHostnames
+    --- PASS: TestSplitHostnames (0.00 seconds)
+    === RUN TestHtmlNew
+    --- PASS: TestHtmlNew (0.00 seconds)
+    === RUN TestHtmlBadImg
+    --- PASS: TestHtmlBadImg (0.00 seconds)
+    === RUN TestHtmlLinksAndImages
+    --- PASS: TestHtmlLinksAndImages (0.00 seconds)
+    === RUN TestHtmlNoLinks
+    --- PASS: TestHtmlNoLinks (0.00 seconds)
+    === RUN TestHtmlNoImages
+    --- PASS: TestHtmlNoImages (0.00 seconds)
+    === RUN TestHtmlNoLinksNorImages
+    --- PASS: TestHtmlNoLinksNorImages (0.00 seconds)
+    === RUN TestHtmlPortNumberInBaseUrl
+    --- PASS: TestHtmlPortNumberInBaseUrl (0.00 seconds)
+    === RUN TestGetFilenameFromUrl
+    --- PASS: TestGetFilenameFromUrl (0.00 seconds)
+    === RUN Test
+    --- PASS: Test (0.00 seconds)
+    === RUN TestFilterUrl
+    --- PASS: TestFilterUrl (0.00 seconds)
+    === RUN TestIsUrlAllowed
+    --- PASS: TestIsUrlAllowed (0.00 seconds)
     PASS
-    ok      _/Users/doug/development/google-go/cat-crawler  0.024s
-
+    ok      github.com/dmuth/cat-crawler    0.037s
 
 ### Contact
 

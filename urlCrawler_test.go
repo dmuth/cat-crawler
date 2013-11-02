@@ -1,4 +1,3 @@
-
 package main
 
 //import "fmt"
@@ -7,7 +6,6 @@ import "testing"
 
 //import log "github.com/dmuth/google-go-log4go"
 import server "github.com/dmuth/procedural-webserver"
-
 
 func Test(t *testing.T) {
 
@@ -26,18 +24,18 @@ func Test(t *testing.T) {
 	in <- url
 	result := <-out
 
-	if (result.Url != url) {
+	if result.Url != url {
 		t.Errorf("URL '%s' does not match '%s'!", result.Url, url)
 	}
 
-	if (result.Code != 200) {
+	if result.Code != 200 {
 		t.Errorf("Code %d does not match 200!", result.Code)
 	}
 
 	in <- "http://localhost:8080/test2?code=404"
 	result = <-out
 
-	if (result.Code != 404) {
+	if result.Code != 404 {
 		t.Errorf("Code %d does not match 404!", result.Code)
 	}
 
@@ -47,13 +45,13 @@ func Test(t *testing.T) {
 	in <- "http://localhost:12345/test2?code=404"
 	result = <-out
 
-	if (result.Code != 0) {
+	if result.Code != 0 {
 		t.Errorf("Code %d does not match 0!", result.Code)
 	}
 
 	pattern := "connection refused"
 	match, _ := regexp.MatchString(pattern, result.Body)
-	if (!match) {
+	if !match {
 		t.Errorf("Could not find pattern '%s' in result '%s'", pattern, result)
 	}
 
@@ -64,7 +62,6 @@ func Test(t *testing.T) {
 	server_obj.Stop()
 
 } // End of Test()
-
 
 func TestFilterUrl(t *testing.T) {
 
@@ -81,7 +78,7 @@ func TestFilterUrl(t *testing.T) {
 		"http://logging.apache.org/log4j/1.2///..///..///./css/print.css",
 		"http:/www.flickr.com/photos/dmuth/6071648896/",
 		"https:/www.flickr.com/photos/dmuth/6071648896/",
-		}
+	}
 	Expected := []string{
 		"http://www.apple.com/",
 		"http://www.apple.com/",
@@ -95,26 +92,25 @@ func TestFilterUrl(t *testing.T) {
 		"http://logging.apache.org/css/print.css",
 		"http://www.flickr.com/photos/dmuth/6071648896/",
 		"https://www.flickr.com/photos/dmuth/6071648896/",
-		}
+	}
 
-	for i:= range Urls {
+	for i := range Urls {
 		Url := filterUrl(Urls[i])
-		if (Url != Expected[i]) {
-			t.Errorf("Filtered URL '%s' does not match expected URL '%s'!", 
+		if Url != Expected[i] {
+			t.Errorf("Filtered URL '%s' does not match expected URL '%s'!",
 				Url, Expected[i])
 		}
 	}
 
 } // End of TestFilterUrl()
 
-
 func TestIsUrlAllowed(t *testing.T) {
 
-	_, _ = NewUrlCrawler(10, []string { 
+	_, _ = NewUrlCrawler(10, []string{
 		"http://foo/",
 		"https://bar/baz",
-		})
-	Urls := []string {
+	})
+	Urls := []string{
 		"http://google.com/",
 		"http://foo",
 		"http://foo/",
@@ -123,8 +119,8 @@ func TestIsUrlAllowed(t *testing.T) {
 		"http://bar/baz",
 		"https://bar/baz",
 		"https://bar/baz/",
-		}
-	Expected := []bool {
+	}
+	Expected := []bool{
 		false,
 		false,
 		true,
@@ -133,26 +129,23 @@ func TestIsUrlAllowed(t *testing.T) {
 		false,
 		true,
 		true,
-		}
+	}
 
 	for key, value := range Urls {
 		result := isUrlAllowed(value)
-		if (result != Expected[key]) {
+		if result != Expected[key] {
 			t.Errorf("For URL '%s', expected %s and got %s",
 				value, Expected[key], result)
 		}
 	}
 
-	_, _ = NewUrlCrawler(10, []string {})
+	_, _ = NewUrlCrawler(10, []string{})
 	for key, value := range Urls {
 		result := isUrlAllowed(value)
-		if (result != true) {
+		if result != true {
 			t.Errorf("For URL '%s', expected %s and got %s",
 				value, Expected[key], result)
 		}
 	}
 
 } // End of TestIsUrlAllowed()
-
-
-

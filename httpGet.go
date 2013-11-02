@@ -1,4 +1,3 @@
-
 package main
 
 import "fmt"
@@ -7,10 +6,9 @@ import "net/http"
 
 import log "github.com/dmuth/google-go-log4go"
 
-
 /**
 * Our response object.
-*/
+ */
 type Response struct {
 	//
 	// The URL we just crawled
@@ -30,13 +28,12 @@ type Response struct {
 	Body string
 }
 
-
 /**
 * Retrieve a URL via HTTP GET.
 *
 * @param {string} url The URL to retrieve.
 * @return {Response} A response consisting of our code and body
-*/
+ */
 func httpGet(url string) (retval Response) {
 
 	retval.Url = url
@@ -48,10 +45,10 @@ func httpGet(url string) (retval Response) {
 		log.Warnf("Error fetching %s: %s", url, err)
 		retval.Body = fmt.Sprintf("%s", err)
 		retval.Code = 0
-		return(retval)
+		return (retval)
 	}
 
-	req.Header.Set("User-Agent", 
+	req.Header.Set("User-Agent",
 		"Doug's cat picture crawler. https://github.com/dmuth/cat-crawler")
 
 	resp, err := client.Do(req)
@@ -59,7 +56,7 @@ func httpGet(url string) (retval Response) {
 		log.Warnf("Error fetching %s: %s", url, err)
 		retval.Body = fmt.Sprintf("%s", err)
 		retval.Code = 0
-		return(retval)
+		return (retval)
 	}
 
 	defer resp.Body.Close()
@@ -68,7 +65,7 @@ func httpGet(url string) (retval Response) {
 		log.Warnf("Error fetching %s: %s", url, err)
 		retval.Body = fmt.Sprintf("%s", err)
 		retval.Code = 0
-		return(retval)
+		return (retval)
 	}
 
 	if _, ok := resp.Header["Content-Type"]; ok {
@@ -79,9 +76,6 @@ func httpGet(url string) (retval Response) {
 	retval.Body = fmt.Sprintf("%s", body)
 	retval.Code = resp.StatusCode
 
-	return(retval)
+	return (retval)
 
 } // End of httpGet()
-
-
-

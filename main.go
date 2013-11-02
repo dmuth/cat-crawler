@@ -1,13 +1,10 @@
-
 package main
 
 import "os"
 import "os/signal"
 import "syscall"
 
-
 import log "github.com/dmuth/google-go-log4go"
-
 
 func main() {
 
@@ -17,7 +14,7 @@ func main() {
 	config := ParseArgs()
 	log.Infof("Config: %s", config)
 	log.Infof("SeedURLs: %s", config.SeedUrls)
-	if (len(config.AllowUrls) > 0 ) {
+	if len(config.AllowUrls) > 0 {
 		log.Infof("Only allowing URLs starting with: %s", config.AllowUrls)
 	}
 
@@ -54,8 +51,8 @@ func main() {
 		//
 		Res := <-UrlCrawlerOut
 
-		if (Res.Code != 200) {
-			log.Debugf("Skipping non-2xx response of %d on URL '%s'", 
+		if Res.Code != 200 {
+			log.Debugf("Skipping non-2xx response of %d on URL '%s'",
 				Res.Code, Res.Url)
 			continue
 		}
@@ -64,23 +61,19 @@ func main() {
 		// Pass it into the HTML parser.  It will in turn send any URLs
 		// it finds into the URL Crawler and any images to the Image Crawler.
 		//
-		HtmlBodyIn <- []string { Res.Url, Res.Body, Res.ContentType }
+		HtmlBodyIn <- []string{Res.Url, Res.Body, Res.ContentType}
 
 	}
 
 } // End of main()
 
-
 /**
 * Wait for ctrl-c to happen, then exit!
-*/
+ */
 func sigInt() {
-        ch := make(chan os.Signal)
-        signal.Notify(ch, syscall.SIGINT)
-        <-ch
-        log.Error("CTRL-C; exiting")
-        os.Exit(0)
+	ch := make(chan os.Signal)
+	signal.Notify(ch, syscall.SIGINT)
+	<-ch
+	log.Error("CTRL-C; exiting")
+	os.Exit(0)
 }
-
-
-

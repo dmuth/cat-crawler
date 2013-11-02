@@ -1,4 +1,3 @@
-
 package main
 
 import "regexp"
@@ -6,25 +5,23 @@ import "strings"
 
 import log "github.com/dmuth/google-go-log4go"
 
-
 //
 // Keep track of if we crawled hosts with specific URLs
 //
-var hostsCrawled map [string]map[string]bool
+var hostsCrawled map[string]map[string]bool
 
 //
 // Our allowed URLs to crawl. If empty, all URLs are crawled.
 //
 var allowedUrls []string
 
-
 /**
 * Spin up 1 or more goroutines to do crawling.
 *
 * @param {int} num_instances
-* @returm {chan string, chan Response} Our channel to read URLs from, 
+* @returm {chan string, chan Response} Our channel to read URLs from,
 *	our channel to write responses to.
-*/
+ */
 func NewUrlCrawler(NumInstances uint, AllowedUrls []string) (in chan string, out chan Response) {
 
 	hostsCrawled = make(map[string]map[string]bool)
@@ -37,15 +34,15 @@ func NewUrlCrawler(NumInstances uint, AllowedUrls []string) (in chan string, out
 	InBufferSize := 0
 
 	//
-	// If we don't have a large output buffer, using multiple seed URLs 
+	// If we don't have a large output buffer, using multiple seed URLs
 	// will cause blocking to happen (ooops!)
 	//
 	OutBufferSize := 1000
 	in = make(chan string, InBufferSize)
 	out = make(chan Response, OutBufferSize)
 
-	for i:=uint(0); i< NumInstances; i++ {
-		log.Infof("Spun up crawler instance #%d", (i+1))
+	for i := uint(0); i < NumInstances; i++ {
+		log.Infof("Spun up crawler instance #%d", (i + 1))
 		go crawlUrls(in, out)
 	}
 
@@ -53,16 +50,15 @@ func NewUrlCrawler(NumInstances uint, AllowedUrls []string) (in chan string, out
 
 } // End of NewUrlCrawler()
 
-
 /**
-* This is run as a goroutine which is responsible for doing the crawling and 
+* This is run as a goroutine which is responsible for doing the crawling and
 * returning the results.
 *
 * @param {chan string} in Our channel to read URLs to crawl from
 * @param {chan Response} out Responses will be written on this channel
 *
 * @return {Response} A response consisting of our code and body
-*/
+ */
 func crawlUrls(in chan string, out chan Response) {
 
 	for {
@@ -70,22 +66,22 @@ func crawlUrls(in chan string, out chan Response) {
 		log.Debug("About to ingest a URL...")
 		url := <-in
 
-		if (!isUrlAllowed(url)) {
+		if !isUrlAllowed(url) {
 			log.Debugf("URL '%s' is not allowed!", url)
 			continue
 		}
 
 		url = filterUrl(url)
 
-		if (urlBeenHere(url)) {
+		if urlBeenHere(url) {
 			log.Debugf("We've already been to '%s', skipping!", url)
 			continue
 		}
 
-		if (!sanityCheck(url)) {
+		if !sanityCheck(url) {
 			//
-			// In the future, I might make the in channel take a data 
-			// structure which includes the referrer so I can dig 
+			// In the future, I might make the in channel take a data
+			// structure which includes the referrer so I can dig
 			// into bad URLs. With a backhoe.
 			//
 			log.Warnf("URL '%s' fails sanity check, skipping!", url)
@@ -93,13 +89,12 @@ func crawlUrls(in chan string, out chan Response) {
 		}
 
 		log.Infof("About to crawl '%s'...", url)
-		out <-httpGet(url)
+		out <- httpGet(url)
 		log.Infof("Done crawling '%s'!", url)
 
 	}
 
 } // End of crawl()
-
 
 /**
 * Filter meaningless things out of URLs. Like hashmarks.
@@ -107,15 +102,15 @@ func crawlUrls(in chan string, out chan Response) {
 * @param {string} url The URL
 *
 * @return {string} The filtered URL
-*/
-func filterUrl(url string) (string) {
+ */
+func filterUrl(url string) string {
 
 	//
 	// First, nuke hashmarks (thanks, Apple!)
 	//
 	regex, _ := regexp.Compile("([^#]+)#")
 	results := regex.FindStringSubmatch(url)
-	if (len(results) >= 2) {
+	if len(results) >= 2 {
 		url = results[1]
 	}
 
@@ -125,7 +120,7 @@ func filterUrl(url string) (string) {
 	regex, _ = regexp.Compile("[^:](/[/]+)")
 	for {
 		results = regex.FindStringSubmatch(url)
-		if (len(results) < 2) {
+		if len(results) < 2 {
 			break
 		}
 
@@ -140,21 +135,21 @@ func filterUrl(url string) (string) {
 	//
 	regex, _ = regexp.Compile("^(http)(s)?(:/)[^/]")
 	results = regex.FindStringSubmatch(url)
-	if (len(results) > 0) {
+	if len(results) > 0 {
 		BrokenMethod := results[1] + results[2] + results[3]
-		url = strings.Replace(url, BrokenMethod, BrokenMethod + "/", 1)
+		url = strings.Replace(url, BrokenMethod, BrokenMethod+"/", 1)
 	}
 
 	//
-	// Now, remove references to parent directories, because that's just 
+	// Now, remove references to parent directories, because that's just
 	// ASKING for path loops. (thanks, Apple!)
 	//
 	// Do this by looping as long as we have ".." present.
 	//
 	regex, _ = regexp.Compile("([^/]+/\\.\\./)")
-	for  {
+	for {
 		results = regex.FindStringSubmatch(url)
-		if (len(results) < 2) {
+		if len(results) < 2 {
 			break
 		}
 
@@ -169,10 +164,9 @@ func filterUrl(url string) (string) {
 	regex, _ = regexp.Compile("/\\./")
 	url = regex.ReplaceAllString(url, "/")
 
-	return(url)
+	return (url)
 
 } // End of filterUrl()
-
 
 /**
 * Have we already been to this URL?
@@ -180,7 +174,7 @@ func filterUrl(url string) (string) {
 * @param {string} url The URL we want to crawl
 *
 * @return {bool} True if we've crawled this URL before, false if we have not.
-*/
+ */
 func urlBeenHere(url string) (retval bool) {
 
 	retval = true
@@ -189,12 +183,12 @@ func urlBeenHere(url string) (retval bool) {
 	// Grab our URL parts
 	//
 	results := getUrlParts(url)
-	if (len(results) < 5) {
+	if len(results) < 5 {
 		//
 		// TODO: Use data structure and print referrer here!
 		//
 		log.Warnf("urlBeenHere(): Unable to parse URL: '%s'", url)
-		return(true)
+		return (true)
 	}
 	Host := results[1]
 	Uri := results[4]
@@ -218,25 +212,23 @@ func urlBeenHere(url string) (retval bool) {
 
 } // End of urlBeenHere()
 
-
 /**
 * Split up our URL into its component parts
-*/
+ */
 func getUrlParts(url string) (retval []string) {
 
 	regex, _ := regexp.Compile("((https?://)([^/]+))(.*)")
 	retval = regex.FindStringSubmatch(url)
 
-	return(retval)
+	return (retval)
 
 } // End of getUrlParts()
-
 
 /**
 * Check to see if this URL is sane.
 *
 * @return {bool} True if the URL looks okay, false otherwise.
-*/
+ */
 func sanityCheck(url string) (retval bool) {
 
 	retval = true
@@ -244,14 +236,13 @@ func sanityCheck(url string) (retval bool) {
 	regex, _ := regexp.Compile(" ")
 	result := regex.FindString(url)
 
-	if (result != "") {
+	if result != "" {
 		retval = false
 	}
 
-	return(retval)
+	return (retval)
 
 } // End of sanityCheck()
-
 
 /**
 * Is this URL on our allowed list?
@@ -259,10 +250,10 @@ func sanityCheck(url string) (retval bool) {
 * @param {string} The URL to check
 *
 * @return {bool} If allowed, true. Otherwise, false.
-*/
-func isUrlAllowed(url string)  (retval bool) {
+ */
+func isUrlAllowed(url string) (retval bool) {
 
-	if (len(allowedUrls) == 0) {
+	if len(allowedUrls) == 0 {
 		return true
 	}
 
@@ -272,7 +263,7 @@ func isUrlAllowed(url string)  (retval bool) {
 	for _, value := range allowedUrls {
 		pattern := "^" + value
 		match, _ := regexp.MatchString(pattern, url)
-		if (match) {
+		if match {
 			return true
 		}
 	}
@@ -283,6 +274,3 @@ func isUrlAllowed(url string)  (retval bool) {
 	return false
 
 } // End of isUrlAllowed()
-
-
-

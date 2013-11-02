@@ -1,7 +1,7 @@
-
 package main
 
 import "flag"
+
 //import "fmt"
 import "regexp"
 import "strings"
@@ -9,21 +9,19 @@ import "os"
 
 import log "github.com/dmuth/google-go-log4go"
 
-
 //
 // Configuration for what was passed in on the command line.
 //
 type Config struct {
-	SeedUrls []string
-	AllowUrls []string
+	SeedUrls       []string
+	AllowUrls      []string
 	NumConnections uint
 }
-
 
 /**
 * Parse our command line arguments.
 * @return {config} Our configuration info
-*/
+ */
 func ParseArgs() (retval Config) {
 
 	retval = Config{[]string{}, []string{}, 1}
@@ -32,10 +30,10 @@ func ParseArgs() (retval Config) {
 		"http://www.cnn.com/",
 		"URL to start with.")
 	allowUrls := flag.String("allow-urls",
-		"", "Url base names to crawl. " +
-		"If specified, this basically acts like a whitelist. " + 
-		"This may be a comma-delimited list. " + 
-		"Examples: http://cnn.com/, http://www.apple.com/store")
+		"", "Url base names to crawl. "+
+			"If specified, this basically acts like a whitelist. "+
+			"This may be a comma-delimited list. "+
+			"Examples: http://cnn.com/, http://www.apple.com/store")
 	flag.UintVar(&retval.NumConnections, "num-connections",
 		1, "How many concurrent outbound connections?")
 	h := flag.Bool("h", false, "To get this help")
@@ -47,7 +45,7 @@ func ParseArgs() (retval Config) {
 	log.SetLevelString(*debug_level)
 	log.Error("Debug level: " + *debug_level)
 
-	if (*h || *help) {
+	if *h || *help {
 		flag.PrintDefaults()
 		os.Exit(1)
 	}
@@ -55,10 +53,9 @@ func ParseArgs() (retval Config) {
 	retval.SeedUrls = SplitHostnames(*hostnames)
 	retval.AllowUrls = SplitHostnames(*allowUrls)
 
-	return(retval)
+	return (retval)
 
 } // End of ParseArgs()
-
 
 /**
 * Take a comma-delimited string of hostnames and turn it into an array of URLs.
@@ -66,17 +63,17 @@ func ParseArgs() (retval Config) {
 * @param {string} Input The comma-delimited string
 *
 * @return {[]string} Array of URLs
-*/
+ */
 func SplitHostnames(Input string) (retval []string) {
 
 	Results := strings.Split(Input, ",")
 
 	for _, value := range Results {
 
-		if (value != "") {
+		if value != "" {
 			pattern := "^http(s)?://"
 			match, _ := regexp.MatchString(pattern, value)
-			if (!match) {
+			if !match {
 				value = "http://" + value
 			}
 
@@ -86,9 +83,6 @@ func SplitHostnames(Input string) (retval []string) {
 
 	}
 
-	return(retval)
+	return (retval)
 
 } // End of SplitHostnames()
-
-
-

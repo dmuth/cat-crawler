@@ -1,4 +1,3 @@
-
 package main
 
 //import "fmt"
@@ -7,12 +6,10 @@ import "os"
 
 import log "github.com/dmuth/google-go-log4go"
 
-
 //
 // Keep track of if we crawled hosts with specific URLs
 //
-var hostsCrawledImages map [string]map[string]bool
-
+var hostsCrawledImages map[string]map[string]bool
 
 /**
 * Fire up 1 or more crawlers to start grabbing images.
@@ -20,20 +17,19 @@ var hostsCrawledImages map [string]map[string]bool
 * @param {chan} Image in Image data structures will be read from here.
 * @param {uint} NumConnections How many go threads to fire up?
 *
-*/
+ */
 func NewImageCrawler(in chan Image, NumConnections uint) {
 
 	hostsCrawledImages = make(map[string]map[string]bool)
-	for i:=0; i<int(NumConnections); i++ {
+	for i := 0; i < int(NumConnections); i++ {
 		go crawlImages(in)
 	}
 
 } // End of NewImageCrawler()
 
-
 /**
 * Continuously read images and crawl them.
-*/
+ */
 func crawlImages(in chan Image) {
 
 	for {
@@ -42,11 +38,11 @@ func crawlImages(in chan Image) {
 		// src, alt, title
 		Url := image.src
 
-		if (Url == "") {
+		if Url == "" {
 			continue
 		}
 
-		if (imageBeenHere(Url)) {
+		if imageBeenHere(Url) {
 			log.Debugf("crawlImages(): We've already been to '%s', skipping!", Url)
 			continue
 		}
@@ -59,7 +55,7 @@ func crawlImages(in chan Image) {
 		//
 		regex, _ := regexp.Compile("^image")
 		results := regex.FindString(response.ContentType)
-		if (len(results) == 0) {
+		if len(results) == 0 {
 			log.Errorf("Skipping Content-Type of '%s', on URL '%s'",
 				response.ContentType, response.Url)
 			continue
@@ -73,14 +69,13 @@ func crawlImages(in chan Image) {
 
 } // End of crawlImages()
 
-
 /**
 * Have we already been to this image?
 *
 * @param {string} url The URL we want to crawl
 *
 * @return {bool} True if we've crawled this URL before, false if we have not.
-*/
+ */
 func imageBeenHere(url string) (retval bool) {
 
 	retval = true
@@ -89,9 +84,9 @@ func imageBeenHere(url string) (retval bool) {
 	// Grab our URL parts
 	//
 	results := getUrlParts(url)
-	if (len(results) < 5) {
+	if len(results) < 5 {
 		log.Warnf("imageBeenHere(): Unable to parse URL: '%s'", url)
-		return(true)
+		return (true)
 	}
 	Host := results[1]
 	Uri := results[4]
@@ -115,10 +110,9 @@ func imageBeenHere(url string) (retval bool) {
 
 } // End of imageBeenHere()
 
-
 /**
 * Convert our URL into a filename
-*/
+ */
 func getFilenameFromUrl(Url string) (retval string) {
 
 	retval = Url
@@ -137,14 +131,13 @@ func getFilenameFromUrl(Url string) (retval string) {
 	// This isn't a perfect fix, but it'll work for now.
 	//
 	MaxLen := 80
-	if (len(retval) > MaxLen) {
+	if len(retval) > MaxLen {
 		retval = retval[:(MaxLen - 1)]
 	}
 
-	return(retval)
+	return (retval)
 
 } // End of getFilenameFromUrl()
-
 
 /**
 * Write our image out to disk.
@@ -152,7 +145,7 @@ func getFilenameFromUrl(Url string) (retval string) {
 * @param {string} Filename The name of the file
 *
 * @param {string} Body The content of the image
-*/
+ */
 func writeImage(Filename string, Body string) {
 
 	cwd, _ := os.Getwd()
@@ -166,11 +159,11 @@ func writeImage(Filename string, Body string) {
 
 	//
 	// Try making our directory
-	// We want to panic if there are any issues since it could 
+	// We want to panic if there are any issues since it could
 	// mean awful things like a full disk!
 	//
 	result := os.MkdirAll(dir, 0750)
-	if (result != nil) {
+	if result != nil {
 		log.Errorf("Error creating directory: %s", result)
 		panic(result)
 	}
@@ -179,18 +172,18 @@ func writeImage(Filename string, Body string) {
 	// Now write the file.
 	//
 	file, err := os.Create(target)
-	if (err != nil) {
+	if err != nil {
 		log.Warnf("Error opening file: %s", err)
 
 	} else {
 		n, err := file.Write([]byte(Body))
-		if (err != nil) {
+		if err != nil {
 			log.Warnf("Error writing file: '%s': %s", target, err)
 		}
 		log.Infof("%d bytes written to file '%s'", n, target)
 
 		err = file.Close()
-		if (err != nil) {
+		if err != nil {
 			log.Errorf("Error closing file: %s", err)
 			panic(err)
 		}
@@ -198,6 +191,3 @@ func writeImage(Filename string, Body string) {
 	}
 
 } // End of writeImage()
-
-
-

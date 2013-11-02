@@ -1,11 +1,9 @@
-
 package main
 
 //import "fmt"
 import "testing"
 
 //import log "github.com/dmuth/google-go-log4go"
-
 
 func TestGetFilenameFromUrl(t *testing.T) {
 
@@ -26,7 +24,7 @@ func TestGetFilenameFromUrl(t *testing.T) {
 			"1234567890" +
 			"1234567890" +
 			"1234567890",
-		}
+	}
 
 	Expected := []string{
 		"www.apple.com/image.png",
@@ -39,16 +37,14 @@ func TestGetFilenameFromUrl(t *testing.T) {
 		"www.flickr.com/photos/dmuth/6071648896",
 		"www.flickr.com/photos/dmuth/6071648896",
 		"www.flickr.com/photos/dmuth/6071648896/1234567890123456789012345678901234567890",
-		}
+	}
 
 	for key, value := range Urls {
 		Result := getFilenameFromUrl(value)
-		if (Result != Expected[key]) {
+		if Result != Expected[key] {
 			t.Errorf("Filename '%s' != expected value '%s",
 				Result, Expected[key])
 		}
 	}
 
 } // End of TestGetFilenameFromUrl()
-
-

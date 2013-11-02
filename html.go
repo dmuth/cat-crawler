@@ -1,4 +1,3 @@
-
 package main
 
 //import "fmt"
@@ -6,30 +5,28 @@ import "regexp"
 
 import log "github.com/dmuth/google-go-log4go"
 
-
 /**
 * Representation of our parsed Html
-*/
+ */
 type Image struct {
-	html string
-	src string
-	alt string
+	html  string
+	src   string
+	alt   string
 	title string
 }
 type HtmlParsed struct {
-	links []string
+	links  []string
 	images []Image
 }
-
 
 /**
 * Set up our parser to run in the background.
 *
-* @param {chan string} UrlCrawlerIn URLs written to this will be sent 
+* @param {chan string} UrlCrawlerIn URLs written to this will be sent
 *	off to the URL crawler.
 *
 * @return {chan string} A channel which will be used to ingest HTML for parsing.
-*/
+ */
 func NewHtml(UrlCrawlerIn chan string) (
 	chan []string, chan Image) {
 
@@ -45,20 +42,19 @@ func NewHtml(UrlCrawlerIn chan string) (
 
 } // End of NewHtml()
 
-
 /**
 * This function is run as a goroutine and ingests Html to parse. It then
 * sends off URLs and image URLs.
 *
 * @param {chan string} HtmlIn Incoming HTML
-* @param {chan string} UrlCrawlerIn URLs written to this will be sent 
+* @param {chan string} UrlCrawlerIn URLs written to this will be sent
 *	off to the URL crawler.
-* @param {chan string} ImageCrawlerOut URLs written to this will be sent 
+* @param {chan string} ImageCrawlerOut URLs written to this will be sent
 *	off to the image crawler.
 *
-*/
-func HtmlParseWorker(HtmlIn chan []string, UrlCrawlerIn chan string, 
-		ImageCrawlerIn chan Image) {
+ */
+func HtmlParseWorker(HtmlIn chan []string, UrlCrawlerIn chan string,
+	ImageCrawlerIn chan Image) {
 
 	//
 	// Loop through HTML and parse all the things.
@@ -79,43 +75,40 @@ func HtmlParseWorker(HtmlIn chan []string, UrlCrawlerIn chan string,
 
 } // End of HtmlParseWorker()
 
-
 /**
 * Another goroutine that loops through our links and sends them off to UrlCrawler
 *
 * @param {HtmlParsed} Our parsed HTML elements.
 * @param {chan string} The channel to send URLs to our URL crawler
 *
-*/
+ */
 func HtmlParseWorkerLinks(Parsed *HtmlParsed, UrlCrawlerIn chan string) {
 
-		for i := range Parsed.links {
-			Row := Parsed.links[i]
-			log.Debugf("Sending to UrlCrawler: %d: %s", i, Row)
-			UrlCrawlerIn <- Row
-		}
+	for i := range Parsed.links {
+		Row := Parsed.links[i]
+		log.Debugf("Sending to UrlCrawler: %d: %s", i, Row)
+		UrlCrawlerIn <- Row
+	}
 
 } // End of HtmlParseWorkerLinks()
 
-
 /**
-* Another goroutine that loops through our images and sends them off to 
+* Another goroutine that loops through our images and sends them off to
 * the ImageCrawler.
 *
 * @param {HtmlParsed} Our parsed HTML elements.
 * @param {ImageCrawlerIn} The channel to send images to our image crawler
 *
-*/
+ */
 func HtmlParseWorkerImages(Parsed *HtmlParsed, ImageCrawlerIn chan Image) {
 
-		for i := range Parsed.images {
-			Row := Parsed.images[i]
-			log.Debugf("Sending to ImageCrawler: %d: %s", i, Row)
-			ImageCrawlerIn <- Row
-		}
+	for i := range Parsed.images {
+		Row := Parsed.images[i]
+		log.Debugf("Sending to ImageCrawler: %d: %s", i, Row)
+		ImageCrawlerIn <- Row
+	}
 
 } // End of HtmlParseWorkerImages()
-
 
 /**
 * Parse an HTML response and get links and images.
@@ -124,7 +117,7 @@ func HtmlParseWorkerImages(Parsed *HtmlParsed, ImageCrawlerIn chan Image) {
 * @param {string} Body The body of the page
 *
 * @return {HtmlParsed} Structure of links and images
-*/
+ */
 func HtmlParseString(BaseUrl string, Body string) (retval HtmlParsed) {
 
 	//
@@ -138,10 +131,9 @@ func HtmlParseString(BaseUrl string, Body string) (retval HtmlParsed) {
 	retval.links = HtmlParseLinks(BaseUrlHost, BaseUrlUri, Body)
 	retval.images = HtmlParseImages(BaseUrlHost, BaseUrlUri, Body)
 
-	return(retval)
+	return (retval)
 
 } // End of HtmlParseString()
-
 
 /**
 * Grab our links out of the body, and fully qualify them.
@@ -151,7 +143,7 @@ func HtmlParseString(BaseUrl string, Body string) (retval HtmlParsed) {
 * @param {string} Body The body of the webpage
 *
 * @return {[]string} Array of links
-*/
+ */
 func HtmlParseLinks(BaseUrlHost string, BaseUrlUri string, Body string) (retval []string) {
 
 	//
@@ -159,13 +151,13 @@ func HtmlParseLinks(BaseUrlHost string, BaseUrlUri string, Body string) (retval 
 	//
 	regex, _ := regexp.Compile("(?s)" +
 		"href=\"" +
-		"("+
+		"(" +
 		"(https?://([^/]+))?" +
 		"([^\"]+)" +
 		")\"")
 	results := regex.FindAllStringSubmatch(Body, -1)
 
-	for i:= range results {
+	for i := range results {
 
 		result := results[i]
 
@@ -176,16 +168,16 @@ func HtmlParseLinks(BaseUrlHost string, BaseUrlUri string, Body string) (retval 
 		// If a host and method is specified, just glue them back together.
 		//
 		Url := ""
-		if (HostAndMethod != "") {
+		if HostAndMethod != "" {
 			Url = HostAndMethod + Uri
 
 		} else {
 			//
-			// Otherwise, it's on the same host. Determine if 
+			// Otherwise, it's on the same host. Determine if
 			// it's a relative or absolute link.
 			//
 			FirstChar := string(Uri[0])
-			if (FirstChar == "/") {
+			if FirstChar == "/" {
 				Url = BaseUrlHost + Uri
 			} else {
 				Url = BaseUrlHost + BaseUrlUri + "/" + Uri
@@ -199,10 +191,9 @@ func HtmlParseLinks(BaseUrlHost string, BaseUrlUri string, Body string) (retval 
 
 	}
 
-	return(retval)
+	return (retval)
 
 } // End of HtmlParseLinks()
-
 
 /**
 * Grab image links out of the body, and fully qualify them.
@@ -212,23 +203,22 @@ func HtmlParseLinks(BaseUrlHost string, BaseUrlUri string, Body string) (retval 
 * @param {string} Body The body of the webpage
 *
 * @return {[]Image} Array of images
-*/
+ */
 func HtmlParseImages(BaseUrlHost string, BaseUrlUri string, Body string) (retval []Image) {
 
 	retval = htmlParseImageTags(Body)
 
-	for i:= range retval {
+	for i := range retval {
 		htmlParseSrc(BaseUrlHost, BaseUrlUri, &retval[i])
-		if (retval[i].src != "") {
+		if retval[i].src != "" {
 			htmlParseAlt(&retval[i])
 			htmlParseTitle(&retval[i])
 		}
 	}
 
-	return(retval)
+	return (retval)
 
 } // End of HtmlParseImages()
-
 
 /**
 * Grab our image tags out of the body.
@@ -236,35 +226,34 @@ func HtmlParseImages(BaseUrlHost string, BaseUrlUri string, Body string) (retval
 * @param {string} Body The HTML body
 *
 * @return {[]Image} Array of Image elements
-*/
+ */
 func htmlParseImageTags(Body string) (retval []Image) {
 
 	regex, _ := regexp.Compile("(?s)" +
 		"<img[^>]+>")
 	results := regex.FindAllStringSubmatch(Body, -1)
 
-	for i:= range results {
-		image := Image{ results[i][0], "", "", "" }
+	for i := range results {
+		image := Image{results[i][0], "", "", ""}
 		retval = append(retval, image)
 	}
 
-	return(retval)
+	return (retval)
 
 } // End of htmlParseImageTags()
 
-
 /**
 * Parse the src tag out of our image.
-* 
+*
 * @param {string} BaseUrlHost The http:// and hostname part of our base URL
 * @param {string} BaseUrlUri Our base URI
 * @param {*Image} Pointer to our image structure
-*/
+ */
 func htmlParseSrc(BaseUrlHost string, BaseUrlUri string, image *Image) {
 
 	regex, _ := regexp.Compile("(?s)" +
 		"<img[^>]+src=\"" +
-		"("+
+		"(" +
 		"(https?://([^/]+))?" +
 		"([^\"]+)" +
 		")\"")
@@ -273,7 +262,7 @@ func htmlParseSrc(BaseUrlHost string, BaseUrlUri string, image *Image) {
 	//
 	// Bail out if we have no source
 	//
-	if (len(result) == 0) {
+	if len(result) == 0 {
 		return
 	}
 
@@ -284,16 +273,16 @@ func htmlParseSrc(BaseUrlHost string, BaseUrlUri string, image *Image) {
 	// If a host and method is specified, just glue them back together.
 	//
 	Url := ""
-	if (HostAndMethod != "") {
+	if HostAndMethod != "" {
 		Url = HostAndMethod + Uri
 
 	} else {
 		//
-		// Otherwise, it's on the same host. Determine if 
+		// Otherwise, it's on the same host. Determine if
 		// it's a relative or absolute link.
 		//
 		FirstChar := string(Uri[0])
-		if (FirstChar == "/") {
+		if FirstChar == "/" {
 			Url = BaseUrlHost + Uri
 		} else {
 			Url = BaseUrlHost + BaseUrlUri + "/" + Uri
@@ -305,34 +294,30 @@ func htmlParseSrc(BaseUrlHost string, BaseUrlUri string, image *Image) {
 
 } // End of htmlParseSrc()
 
-
 /**
 * Parse the alt tag out of our image.
-*/
+ */
 func htmlParseAlt(image *Image) {
 
 	regex, _ := regexp.Compile("(?s)" +
 		"<img[^>]+alt=\"([^\"]+)\"")
 	result := regex.FindStringSubmatch(image.html)
-	if (len(result) > 1) {
+	if len(result) > 1 {
 		image.alt = result[1]
 	}
 
 } // End of htmlParseAlt()
 
-
 /**
 * Parse the title tag out of our image.
-*/
+ */
 func htmlParseTitle(image *Image) {
 
 	regex, _ := regexp.Compile("(?s)" +
 		"<img[^>]+title=\"([^\"]+)\"")
 	result := regex.FindStringSubmatch(image.html)
-	if (len(result) > 1) {
+	if len(result) > 1 {
 		image.title = result[1]
 	}
 
 } // End of htmlParseTitle()
-
-

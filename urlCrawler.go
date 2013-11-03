@@ -220,6 +220,10 @@ func getUrlParts(url string) (retval []string) {
 	regex, _ := regexp.Compile("((https?://)([^/]+))(.*)")
 	retval = regex.FindStringSubmatch(url)
 
+	if len(retval) < 5 {
+		log.Warnf("getUrlParts(): Unable to parse URL: '%s'", url)
+	}
+
 	return (retval)
 
 } // End of getUrlParts()

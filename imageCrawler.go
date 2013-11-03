@@ -2,6 +2,7 @@ package main
 
 //import "fmt"
 import "regexp"
+import "strings"
 import "os"
 
 import log "github.com/dmuth/google-go-log4go"
@@ -14,23 +15,27 @@ var hostsCrawledImages map[string]map[string]bool
 /**
 * Fire up 1 or more crawlers to start grabbing images.
 *
+* @param {config} Our configuration
 * @param {chan} Image in Image data structures will be read from here.
 * @param {uint} NumConnections How many go threads to fire up?
 *
  */
-func NewImageCrawler(in chan Image, NumConnections uint) {
+func NewImageCrawler(config Config, in chan Image, NumConnections uint) {
 
 	hostsCrawledImages = make(map[string]map[string]bool)
 	for i := 0; i < int(NumConnections); i++ {
-		go crawlImages(in)
+		go crawlImages(config, in)
 	}
 
 } // End of NewImageCrawler()
 
 /**
 * Continuously read images and crawl them.
+*
+* @param {config} Our configuration
+*
  */
-func crawlImages(in chan Image) {
+func crawlImages(config Config, in chan Image) {
 
 	for {
 		image := <-in
@@ -42,13 +47,33 @@ func crawlImages(in chan Image) {
 			continue
 		}
 
-		if imageBeenHere(Url) {
+		//
+		// If we've been here before, stop
+		//
+		if imageBeenHereUrl(Url) {
 			log.Debugf("crawlImages(): We've already been to '%s', skipping!", Url)
 			continue
 		}
+		setImageBeenHereUrl(Url)
 
+		match := false
+		if strings.Contains(strings.ToLower(image.alt), config.SearchString) {
+			match = true
+			log.Debugf("Match found on ALT tag for URL '%s'!", Url)
+		}
+		if strings.Contains(strings.ToLower(image.title), config.SearchString) {
+			match = true
+			log.Infof("Match found on TITLE tag for URL '%s'!", Url)
+		}
+
+		if !match {
+			log.Debugf("No match for %s found in alt and title tags for URL '%s', stopping!", Url)
+			continue
+		}
+
+		log.Infof("Image: About to crawl '%s'...", Url)
 		response := httpGet(Url)
-		log.Infof("Response code %d on URL '%s'", response.Code, response.Url)
+		log.Infof("Image: Response code %d on URL '%s'", response.Code, response.Url)
 
 		//
 		// If the content-type isn't an image, stop.
@@ -70,45 +95,92 @@ func crawlImages(in chan Image) {
 } // End of crawlImages()
 
 /**
-* Have we already been to this image?
-*
-* @param {string} url The URL we want to crawl
-*
-* @return {bool} True if we've crawled this URL before, false if we have not.
+* Wrapper for imageBeenHere() which takes a URL
  */
-func imageBeenHere(url string) (retval bool) {
-
-	retval = true
+func imageBeenHereUrl(url string) bool {
 
 	//
 	// Grab our URL parts
 	//
 	results := getUrlParts(url)
 	if len(results) < 5 {
-		log.Warnf("imageBeenHere(): Unable to parse URL: '%s'", url)
+		log.Warnf("imageBeenHereUrl(): Unable to parse URL: '%s'", url)
 		return (true)
 	}
-	Host := results[1]
-	Uri := results[4]
+	host := results[1]
+	uri := results[4]
+
+	if imageBeenHere(host, uri) {
+		return (true)
+	}
+
+	//
+	// Assume false
+	//
+	return (false)
+
+}
+
+/**
+* Wrapper for setImageBeenHere() which takes a URL.
+ */
+func setImageBeenHereUrl(url string) {
+
+	//
+	// Grab our URL parts
+	//
+	results := getUrlParts(url)
+	host := results[1]
+	uri := results[4]
+
+	setImageBeenHere(host, uri)
+
+}
+
+/**
+* Make the deterination if we've been to this image before.
+*
+* @param {string} host The hostname
+* @param {string} uri The URI
+*
+* @return {bool} True if we've crawled this image before, false otherwise.
+ */
+func imageBeenHere(host string, uri string) bool {
 
 	//
 	// Create our host entry if we don't already have it.
 	//
-	if _, ok := hostsCrawledImages[Host]; !ok {
-		hostsCrawledImages[Host] = make(map[string]bool)
+	if _, ok := hostsCrawledImages[host]; !ok {
+		hostsCrawledImages[host] = make(map[string]bool)
 	}
 
 	//
-	// If this is our first time here, cool. Otherwise, skip.
+	// See if we've been here before.
 	//
-	if _, ok := hostsCrawledImages[Host][Uri]; !ok {
-		hostsCrawledImages[Host][Uri] = true
-		retval = false
+	_, ok := hostsCrawledImages[host][uri]
+	if ok {
+		return (true)
+	} else {
+		return (false)
 	}
-
-	return retval
 
 } // End of imageBeenHere()
+
+/**
+* We've been to this image before!
+ */
+func setImageBeenHere(host string, uri string) {
+
+	//
+	// Create our host entry if we don't already have it.
+	//
+	if _, ok := hostsCrawledImages[host]; !ok {
+		hostsCrawledImages[host] = make(map[string]bool)
+	}
+
+	hostsCrawledImages[host][uri] = true
+
+}
 
 /**
 * Convert our URL into a filename

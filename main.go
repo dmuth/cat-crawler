@@ -43,7 +43,7 @@ func main() {
 	//
 	// Start up our image crawler
 	//
-	NewImageCrawler(ImageCrawlerIn, NumConnections)
+	NewImageCrawler(config, ImageCrawlerIn, NumConnections)
 
 	for {
 		//

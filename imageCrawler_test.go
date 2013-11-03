@@ -3,8 +3,6 @@ package main
 //import "fmt"
 import "testing"
 
-//import log "github.com/dmuth/google-go-log4go"
-
 func TestGetFilenameFromUrl(t *testing.T) {
 
 	Urls := []string{
@@ -48,3 +46,56 @@ func TestGetFilenameFromUrl(t *testing.T) {
 	}
 
 } // End of TestGetFilenameFromUrl()
+
+func TestImageBeenHereUrl(t *testing.T) {
+
+	hostsCrawledImages = make(map[string]map[string]bool)
+
+	url := "http://www.cnn.com/"
+	result := imageBeenHereUrl(url)
+	if result != false {
+		t.Errorf("Expected result to be false for %s, got %s", url, result)
+	}
+
+	setImageBeenHereUrl(url)
+	result = imageBeenHereUrl(url)
+	if result != true {
+		t.Errorf("Expected result to be true for %s, got %s", url, result)
+	}
+
+	url = "http://www.cnn.com/foobar"
+	result = imageBeenHereUrl(url)
+	if result != false {
+		t.Errorf("Expected result to be false for %s, got %s", url, result)
+	}
+
+	setImageBeenHereUrl(url)
+	result = imageBeenHereUrl(url)
+	if result != true {
+		t.Errorf("Expected result to be true for %s, got %s", url, result)
+	}
+
+}
+
+func TestImageBeenHere(t *testing.T) {
+
+	hostsCrawledImages = make(map[string]map[string]bool)
+
+	result := imageBeenHere("test", "test2")
+	if result != false {
+		t.Errorf("Expected result to be false, got %s", result)
+	}
+
+	setImageBeenHere("test", "test2")
+
+	result = imageBeenHere("test", "test2")
+	if result != true {
+		t.Errorf("Expected result to be true, got %s", result)
+	}
+
+	result = imageBeenHere("test", "test")
+	if result != false {
+		t.Errorf("Expected result to be false, got %s", result)
+	}
+
+}

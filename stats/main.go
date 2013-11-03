@@ -26,7 +26,7 @@ func initData(key string) {
 /**
 * Increment a key by a specified value.
 */
-func IncrStatus(key string, value int) {
+func IncrStats(key string, value int) {
 	initData(key)
 	data[key] += value
 }
@@ -34,7 +34,7 @@ func IncrStatus(key string, value int) {
 /**
 * Decrement a key by a specified value.
 */
-func DecrStatus(key string, value int) {
+func DecrStats(key string, value int) {
 	initData(key)
 	data[key] -= value
 }
@@ -42,9 +42,16 @@ func DecrStatus(key string, value int) {
 /**
 * Grab the value of a specific key.
 */
-func Status(key string) (int) {
+func Stats(key string) (int) {
 	initData(key)
 	return(data[key])
 }
 
+
+/**
+* Get stats for all keys.
+*/
+func StatsAll() (map[string]int) {
+	return(data)
+}
 

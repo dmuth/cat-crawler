@@ -2,29 +2,6 @@
 
 A webcrawler I'm writing in Google Go that I can use to find and download cat pictures.
 
-
-### Current status
-
-**Sorta working** 
-
-Images are now downloaded and saved in the downloads/ directory, though rather indiscriminately.
-
-I'll work on alt and title tag searching next.
-
-### TODO
-
-- Create image crawler
-  - Add search capability to alt and title tags
-- Rate limiting by domain in URL crawler
-	- I could have an array of key=domain, value=count and a goroutine 
-		that decrements count regularly
-		- Could get a bit crazy on the memory, though!
-- Write instrumentation to detect how many goroutines are active/idle
-	- GoStatStart(key)
-	- GoStatStop(key)
-	- go GoStatDump(interval)
-
-
 ### Installation
 
 - Make sure your golib is set up properly:
@@ -35,10 +12,11 @@ I'll work on alt and title tag searching next.
    `go get -v github.com/dmuth/cat-crawler`
 
 ### Running the crawler
-    cat-crawler [--seed-url url[,url[,url[...]]]] [ --num-connections n ] [--allow-urls [url,[url,[...]]]]
+    cat-crawler [--seed-url url[,url[,url[...]]]] [ --num-connections n ] [--allow-urls [url,[url,[...]]]] [--search-string cat]
         --seed-url What URL to start at? More than one URL may be 
             specified in comma-delimited format.
         --num-connections How many concurrent connections?
+        --search-string A string we want to search for in ALT and TITLE attributes on images
         --allow-urls If specified, only URLs starting with the URLs listed here are crawled
 
 ### Examples
@@ -93,6 +71,18 @@ You should see results like this:
     --- PASS: TestIsUrlAllowed (0.00 seconds)
     PASS
     ok      github.com/dmuth/cat-crawler    0.037s
+
+### TODO
+
+- Rate limiting by domain in URL crawler
+	- I could have an array of key=domain, value=count and a goroutine 
+		that decrements count regularly
+		- Could get a bit crazy on the memory, though!
+- Write instrumentation to detect how many goroutines are active/idle
+	- GoStatStart(key)
+	- GoStatStop(key)
+	- go GoStatDump(interval)
+
 
 ### Contact
 

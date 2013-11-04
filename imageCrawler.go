@@ -6,7 +6,7 @@ import "strings"
 import "os"
 
 import log "github.com/dmuth/google-go-log4go"
-import stats "github.com/dmuth/cat-crawler/stats"
+import stats "github.com/dmuth/golang-stats"
 
 //
 // Keep track of if we crawled hosts with specific URLs

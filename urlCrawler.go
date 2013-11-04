@@ -5,7 +5,7 @@ import "regexp"
 import "strings"
 
 import log "github.com/dmuth/google-go-log4go"
-import stats "github.com/dmuth/cat-crawler/stats"
+import stats "github.com/dmuth/golang-stats"
 
 
 //

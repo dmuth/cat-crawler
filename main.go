@@ -6,7 +6,7 @@ import "os/signal"
 import "syscall"
 
 import log "github.com/dmuth/google-go-log4go"
-import stats "github.com/dmuth/cat-crawler/stats"
+import stats "github.com/dmuth/golang-stats"
 
 func main() {
 
@@ -27,7 +27,7 @@ func main() {
 
 	interval := 1.0
 	//interval := .1 // Debugging
-	go stats.StatsDump(interval)
+	go stats.StatDump(interval)
 
 	NumConnections := config.NumConnections
 

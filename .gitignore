@@ -18,7 +18,7 @@ output.txt
 #
 # Ignore our default downloads directory
 #
-downloads
+cat-crawler-downloads
 
 #
 # Et tu, OS/X?

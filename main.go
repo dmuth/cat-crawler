@@ -1,10 +1,12 @@
 package main
 
+//import "fmt" // Debugging
 import "os"
 import "os/signal"
 import "syscall"
 
 import log "github.com/dmuth/google-go-log4go"
+import stats "github.com/dmuth/cat-crawler/stats"
 
 func main() {
 
@@ -23,6 +25,10 @@ func main() {
 	//
 	go sigInt()
 
+	interval := 1.0
+	//interval := .1 // Debugging
+	go stats.StatsDump(interval)
+
 	NumConnections := config.NumConnections
 
 	//
@@ -32,6 +38,7 @@ func main() {
 
 	//UrlCrawlerIn <- "http://localhost:8080/" // Debugging
 	for _, value := range config.SeedUrls {
+		stats.IncrStat("urls_to_be_crawled")
 		UrlCrawlerIn <- value
 	}
 

@@ -1,9 +1,12 @@
 package main
 
+//import "fmt" // Debugging
 import "regexp"
 import "strings"
 
 import log "github.com/dmuth/google-go-log4go"
+import stats "github.com/dmuth/cat-crawler/stats"
+
 
 //
 // Keep track of if we crawled hosts with specific URLs
@@ -64,7 +67,10 @@ func crawlUrls(in chan string, out chan Response) {
 	for {
 
 		log.Debug("About to ingest a URL...")
+		stats.IncrStat("go_url_crawler_waiting")
 		url := <-in
+		stats.DecrStat("go_url_crawler_waiting")
+		stats.DecrStat("urls_to_be_crawled")
 
 		if !isUrlAllowed(url) {
 			log.Debugf("URL '%s' is not allowed!", url)

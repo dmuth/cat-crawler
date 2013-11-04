@@ -6,6 +6,7 @@ import "strings"
 import "os"
 
 import log "github.com/dmuth/google-go-log4go"
+import stats "github.com/dmuth/cat-crawler/stats"
 
 //
 // Keep track of if we crawled hosts with specific URLs
@@ -38,7 +39,10 @@ func NewImageCrawler(config Config, in chan Image, NumConnections uint) {
 func crawlImages(config Config, in chan Image) {
 
 	for {
+		stats.IncrStat("go_image_crawler_waiting")
 		image := <-in
+		stats.DecrStat("go_image_crawler_waiting")
+		stats.DecrStat("images_to_be_crawled")
 
 		// src, alt, title
 		Url := image.src
@@ -52,6 +56,7 @@ func crawlImages(config Config, in chan Image) {
 		//
 		if imageBeenHereUrl(Url) {
 			log.Debugf("crawlImages(): We've already been to '%s', skipping!", Url)
+			stats.IncrStat("images_skipped")
 			continue
 		}
 		setImageBeenHereUrl(Url)
@@ -68,11 +73,13 @@ func crawlImages(config Config, in chan Image) {
 
 		if !match {
 			log.Debugf("No match for %s found in alt and title tags for URL '%s', stopping!", Url)
+			stats.IncrStat("images_not_matched")
 			continue
 		}
 
 		log.Infof("Image: About to crawl '%s'...", Url)
 		response := httpGet(Url)
+		stats.IncrStat("images_crawled")
 		log.Infof("Image: Response code %d on URL '%s'", response.Code, response.Url)
 
 		//

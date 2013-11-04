@@ -4,6 +4,7 @@ package main
 import "regexp"
 
 import log "github.com/dmuth/google-go-log4go"
+import stats "github.com/dmuth/cat-crawler/stats"
 
 /**
 * Representation of our parsed Html
@@ -87,6 +88,7 @@ func HtmlParseWorkerLinks(Parsed *HtmlParsed, UrlCrawlerIn chan string) {
 	for i := range Parsed.links {
 		Row := Parsed.links[i]
 		log.Debugf("Sending to UrlCrawler: %d: %s", i, Row)
+stats.IncrStat("urls_to_be_crawled")
 		UrlCrawlerIn <- Row
 	}
 
@@ -105,6 +107,7 @@ func HtmlParseWorkerImages(Parsed *HtmlParsed, ImageCrawlerIn chan Image) {
 	for i := range Parsed.images {
 		Row := Parsed.images[i]
 		log.Debugf("Sending to ImageCrawler: %d: %s", i, Row)
+stats.IncrStat("images_to_be_crawled")
 		ImageCrawlerIn <- Row
 	}
 

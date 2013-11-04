@@ -1,5 +1,5 @@
 
-package main
+package stats
 
 //import "fmt"
 import "testing"
@@ -7,33 +7,48 @@ import "testing"
 func TestMain(t *testing.T) {
 
 	key := "key1"
-	IncrStats(key, 1)
+	key2 := "key2"
+	IncrStat(key)
 
-	result := Stats(key)
+	result := Stat(key)
 	expected := 1
 	if result != expected {
 		t.Errorf("Value '%d' doesn't match expected '%d'!", result, expected)
 	}
 
-	DecrStats(key, 3)
-	result = Stats(key)
-	expected = -2
+	DecrStat(key)
+	result = Stat(key)
+	expected = 0
 	if result != expected {
 		t.Errorf("Value '%d' doesn't match expected '%d'!", result, expected)
 	}
 
+	IncrStat(key2)
+	data := StatAll()
 
-	IncrStats("key2", 2)
-	data := StatsAll()
-
-	expected = -2
+	expected = 0
 	if data[key] != expected {
 		t.Errorf("Value '%d' doesn't match expected '%d'!", result, expected)
 	}
 
-	expected = 2
-	if data["key2"] != expected {
-		t.Errorf("Value '%d' doesn't match expected '%d'!", data["key2"], expected)
+	expected = 1
+	if data[key2] != expected {
+		t.Errorf("Value '%d' doesn't match expected '%d'!", data[key2], expected)
+	}
+
+	AddStat(key, 1)
+	SubStat(key2, 3)
+
+	data = StatAll()
+
+	expected = 1
+	if data[key] != expected {
+		t.Errorf("Value '%d' doesn't match expected '%d'!", data[key], expected)
+	}
+
+	expected = -2
+	if data[key2] != expected {
+		t.Errorf("Value '%d' doesn't match expected '%d'!", data[key2], expected)
 	}
 
 }

@@ -72,6 +72,14 @@ You should see results like this:
     PASS
     ok      github.com/dmuth/cat-crawler    0.037s
 
+
+### Depdendencies
+
+This repo uses other packages I wrote:
+- [log4go](https://github.com/dmuth/google-go-log4go)
+- [golang-stats](https://github.com/dmuth/golang-stats)
+
+
 ### TODO
 
 - Rate limiting by domain in URL crawler

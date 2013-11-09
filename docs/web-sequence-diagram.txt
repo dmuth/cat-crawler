@@ -1,0 +1,19 @@
+
+
+#
+# Paste this into https://www.websequencediagrams.com/ to create a sequence diagram
+#
+participant Main
+participant UrlCrawler
+participant HtmlParser
+participant ImageCrawler
+participant Filesystem
+
+Note over UrlCrawler, ImageCrawler: 1,000 Goroutines of each crawler, 1 of HtmlParser
+Main->UrlCrawler: Seed URL
+UrlCrawler->HtmlParser: Send HTML from crawled URLs
+HtmlParser->UrlCrawler: Send found URLs to be crawled
+HtmlParser->ImageCrawler: Send images to crawl
+ImageCrawler->Filesystem: Write matched images
+
+

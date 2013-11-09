@@ -18,7 +18,7 @@ A webcrawler I'm writing in Google Go that I can use to find and download cat pi
         --num-connections How many concurrent connections?
         --search-string A string we want to search for in ALT and TITLE attributes on images
         --allow-urls If specified, only URLs starting with the URLs listed here are crawled
-        --stats Print out stats once a second using [my stats package](https://github.com/dmuth/golang-stats)
+        --stats Print out stats once a second using my stats package
 
 ### Examples
     cat-crawler --seed-url cnn.com --num-connections 1

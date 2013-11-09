@@ -4,10 +4,10 @@ A webcrawler I'm writing in Google Go that I can use to find and download cat pi
 
 ### Installation
 
-- Make sure your golib is set up properly:
-   `export GOLIB=$HOME/golib`
+- Make sure your GOPATH environment variable is set up properly:
+   `export GOPATH=$HOME/golib`
 - Make sure the bin directory is in your path:
-   `PATH=$PATH:$GOLIB/bin`
+   `PATH=$PATH:$GOPATH/bin`
 - Now install the package
    `go get -v github.com/dmuth/cat-crawler`
 

@@ -33,6 +33,10 @@ Don't leave CNN's website
     cat-crawler --seed-url cnn.com  --num-connections 1 --allow-urls foobar
 After crawling the first page, nothing will happen.  Oops.
 
+### Sequence diagram
+
+![Sequence Diagram](https://raw.github.com/dmuth/cat-crawler/master/docs/sequence-diagram.png "Sequence Diagram")
+
 
 ### Development
 

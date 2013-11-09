@@ -27,7 +27,9 @@ func main() {
 
 	interval := 1.0
 	//interval := .1 // Debugging
-	go stats.StatDump(interval)
+	if config.Stats {
+		go stats.StatDump(interval)
+	}
 
 	NumConnections := config.NumConnections
 

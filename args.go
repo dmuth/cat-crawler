@@ -17,6 +17,7 @@ type Config struct {
 	AllowUrls      []string
 	SearchString   string
 	NumConnections uint
+	Stats          bool
 }
 
 /**
@@ -25,7 +26,7 @@ type Config struct {
  */
 func ParseArgs() (retval Config) {
 
-	retval = Config{[]string{}, []string{}, "", 1}
+	retval = Config{[]string{}, []string{}, "", 1, false}
 
 	hostnames := flag.String("seed-url",
 		"http://www.cnn.com/",
@@ -39,6 +40,7 @@ func ParseArgs() (retval Config) {
 		1, "How many concurrent outbound connections?")
 	flag.StringVar(&retval.SearchString, "search-string",
 		"cat", "String to search for in alt and title tags of graphics")
+	flag.BoolVar(&retval.Stats, "stats", false, "To print out stats once per second")
 
 	h := flag.Bool("h", false, "To get this help")
 	help := flag.Bool("help", false, "To get this help")

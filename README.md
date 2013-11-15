@@ -85,6 +85,12 @@ This repo uses other packages I wrote:
 - [golang-stats](https://github.com/dmuth/golang-stats)
 
 
+### Bugs
+
+- I am not accessing the maps inside of an array.
+    - Fix: A separate source file, with a single goroutine which service requests through a channel is a possibility
+
+
 ### TODO
 
 - Rate limiting by domain in URL crawler

@@ -1,6 +1,6 @@
 ## Cat Crawler
 
-A webcrawler I'm writing in Google Go that I can use to find and download cat pictures.
+A webcrawler I'm writing in Golang that I can use to find and download cat pictures.
 
 ### Installation
 
